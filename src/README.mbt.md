@@ -220,6 +220,40 @@ or an `Option` result, and `raise` a checked error.
   Or paste the string into an online viewer such as
   [GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/).
 
+## Coming from Rust petgraph
+
+`petgraph_mbt` mirrors petgraph's API closely — most names are identical, so
+petgraph code reads almost unchanged. A few things were deliberately adapted to
+MoonBit idioms.
+
+**Identical names**
+
+- `@graph`: `Graph::new` / `new_undirected` / `with_capacity` / `from_edges`;
+  `add_node` / `add_edge` / `update_edge` / `remove_node` / `remove_edge`;
+  `node_weight` / `edge_weight` / `edge_endpoints` / `find_edge` /
+  `find_edge_undirected` / `contains_edge` / `node_count` / `edge_count` /
+  `is_directed` / `externals` / `reverse`; `neighbors` / `neighbors_directed` /
+  `neighbors_undirected`.
+- `@algo`: `dijkstra`, `astar`, `bellman_ford`, `toposort`, `is_cyclic_directed`,
+  `is_cyclic_undirected`, `connected_components`, `kosaraju_scc`, `tarjan_scc`,
+  `min_spanning_tree`.
+- `@visit`: `Dfs`, `Bfs`, `DfsPostOrder`, `Topo`, `depth_first_search`,
+  `DfsEvent`, `Control`, `Direction::{Outgoing, Incoming}`.
+- `@unionfind`: `UnionFind` — `union` / `find` / `find_mut` / `new_set` /
+  `into_labeling`.
+
+**Deliberate differences**
+
+| Rust petgraph | petgraph_mbt | why |
+|---|---|---|
+| `NodeIndex` / `EdgeIndex` | `NodeId` / `EdgeId` (`.index()` kept) | shorter; not a Rust index newtype |
+| `node_indices()` / `edge_indices()` | `node_ids()` / `edge_ids()` | follows the `NodeId` rename |
+| named iterators (`Neighbors`, `NodeIndices`, …) | lazy `Iter[T]` | MoonBit's standard iterator; `for x in …` is identical |
+| `toposort -> Result<_, Cycle>` | `toposort(…) raise Cycle` | MoonBit error idiom — use `try?` for a `Result` |
+| `bellman_ford -> Result<_, NegativeCycle>` | `… raise NegativeCycle` | same |
+| `Ty` type parameter (`Directed` / `Undirected`) | runtime `new` vs `new_undirected` | no const-generic directedness |
+| `FloatMeasure` / numeric bounds | `Measure` trait (`Int`, `Double`) | hand-written numeric trait |
+
 ## Documentation
 
 - [`docs/DESIGN.md`](../docs/DESIGN.md) — architecture & design decisions.

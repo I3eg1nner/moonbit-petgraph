@@ -215,6 +215,39 @@ test "traversal and cycles" {
   或把字符串贴到在线查看器,例如
   [GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/)。
 
+## 从 Rust petgraph 迁移
+
+`petgraph_mbt` 的 API 高度贴合 petgraph——大多数名字完全一致,petgraph 代码几乎原样可读。
+只有少数几处为顺应 MoonBit 惯用法做了有意的调整。
+
+**完全一致的命名**
+
+- `@graph`:`Graph::new` / `new_undirected` / `with_capacity` / `from_edges`;
+  `add_node` / `add_edge` / `update_edge` / `remove_node` / `remove_edge`;
+  `node_weight` / `edge_weight` / `edge_endpoints` / `find_edge` /
+  `find_edge_undirected` / `contains_edge` / `node_count` / `edge_count` /
+  `is_directed` / `externals` / `reverse`;`neighbors` / `neighbors_directed` /
+  `neighbors_undirected`。
+- `@algo`:`dijkstra`、`astar`、`bellman_ford`、`toposort`、`is_cyclic_directed`、
+  `is_cyclic_undirected`、`connected_components`、`kosaraju_scc`、`tarjan_scc`、
+  `min_spanning_tree`。
+- `@visit`:`Dfs`、`Bfs`、`DfsPostOrder`、`Topo`、`depth_first_search`、
+  `DfsEvent`、`Control`、`Direction::{Outgoing, Incoming}`。
+- `@unionfind`:`UnionFind` —— `union` / `find` / `find_mut` / `new_set` /
+  `into_labeling`。
+
+**有意的差异**
+
+| Rust petgraph | petgraph_mbt | 原因 |
+|---|---|---|
+| `NodeIndex` / `EdgeIndex` | `NodeId` / `EdgeId`(保留 `.index()`) | 更短;并非 Rust 的 index newtype |
+| `node_indices()` / `edge_indices()` | `node_ids()` / `edge_ids()` | 随 `NodeId` 改名 |
+| 具名迭代器(`Neighbors`、`NodeIndices` 等) | 惰性 `Iter[T]` | MoonBit 标准迭代器;`for x in …` 用法完全一致 |
+| `toposort -> Result<_, Cycle>` | `toposort(…) raise Cycle` | MoonBit 错误惯用法——想要 `Result` 用 `try?` |
+| `bellman_ford -> Result<_, NegativeCycle>` | `… raise NegativeCycle` | 同上 |
+| `Ty` 类型参数(`Directed` / `Undirected`) | 运行时 `new` 与 `new_undirected` 二选一 | 不用常量泛型表达有向性 |
+| `FloatMeasure` / 数值约束 | `Measure` trait(`Int`、`Double`) | 手写的数值 trait |
+
 ## 文档
 
 - [`docs/DESIGN.md`](docs/DESIGN.md) —— 架构与设计决策(英文)。
