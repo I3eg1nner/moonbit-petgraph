@@ -31,9 +31,8 @@ fn canon_sccs(sccs : Array[Array[@graph.NodeId]]) -> Array[Array[Int]] {
 test "toposort on a DAG: each edge goes source-before-target" {
   // A DAG: 0->1, 0->2, 1->3, 2->3, 3->4
   let g = @graph.from_edges([(0, 1), (0, 2), (1, 3), (2, 3), (3, 4)])
-  let order = match @algo.toposort(g) {
-    Ok(o) => o
-    Err(_) => {
+  let order = @algo.toposort(g) catch {
+    _ => {
       fail("expected acyclic graph")
       []
     }
@@ -54,14 +53,15 @@ test "toposort on a DAG: each edge goes source-before-target" {
 test "toposort returns Err on a cyclic graph" {
   // 0 -> 1 -> 2 -> 0 is a cycle.
   let g = @graph.from_edges([(0, 1), (1, 2), (2, 0)])
-  let is_err = match @algo.toposort(g) {
-    Ok(_) => false
-    Err(node) => {
+  let is_err = try @algo.toposort(g) catch {
+    Cycle(node) => {
       // The reported node must be one of the cycle members 0,1,2.
       let idx = node.index()
       assert_eq(idx >= 0 && idx <= 2, true)
       true
     }
+  } noraise {
+    _ => false
   }
   inspect(is_err, content="true")
 }
@@ -73,7 +73,7 @@ test "is_cyclic_directed true iff toposort is Err (several graphs)" {
   let self_loop = @graph.from_edges([(0, 0)])
   for g in [dag, cyclic, self_loop] {
     let cyc = @algo.is_cyclic_directed(g)
-    let topo_err = @algo.toposort(g) is Err(_)
+    let topo_err = (try? @algo.toposort(g)) is Err(_)
     assert_eq(cyc, topo_err)
   }
   // Spot-check the actual values.

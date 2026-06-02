@@ -2,8 +2,10 @@
 /// Neighbors of `a` reachable via outgoing edges (for directed) or any edge
 /// (for undirected).
 ///
-/// Equivalent to `neighbors_directed(a, Outgoing)`.
-pub fn[N, E] Graph::neighbors(self : Graph[N, E], a : NodeId) -> Array[NodeId] {
+/// Equivalent to `neighbors_directed(a, Outgoing)`. Returns a fresh, lazy
+/// `Iter[NodeId]`; call again to re-iterate (a single `Iter` is consumed once,
+/// per MoonBit convention).
+pub fn[N, E] Graph::neighbors(self : Graph[N, E], a : NodeId) -> Iter[NodeId] {
   self.neighbors_directed(a, Outgoing)
 }
 
@@ -20,7 +22,7 @@ pub fn[N, E] Graph::neighbors_directed(
   self : Graph[N, E],
   a : NodeId,
   dir : Direction,
-) -> Array[NodeId] {
+) -> Iter[NodeId] {
   // Start from the undirected walk state, then for a directed graph restrict to
   // the single requested direction (clear the other head, disable self-loop
   // skipping), mirroring petgraph's `neighbors_directed`.
@@ -49,7 +51,7 @@ pub fn[N, E] Graph::neighbors_directed(
 pub fn[N, E] Graph::neighbors_undirected(
   self : Graph[N, E],
   a : NodeId,
-) -> Array[NodeId] {
+) -> Iter[NodeId] {
   let (next_out, next_in) = match self.nodes.get(a.index()) {
     None => (EdgeId::end(), EdgeId::end())
     Some(n) => (n.next_out, n.next_in)
@@ -61,29 +63,30 @@ pub fn[N, E] Graph::neighbors_undirected(
 /// Shared walk used by the `neighbors*` methods, porting petgraph's
 /// `Neighbors::next`: first the outgoing list (yielding targets), then the
 /// incoming list (yielding sources), skipping self-loops whose source equals
-/// `skip_start`.
+/// `skip_start`. Produced lazily as a single-use `Iter[NodeId]`.
 fn[N, E] Graph::walk_neighbors(
   self : Graph[N, E],
   next_out : EdgeId,
   next_in : EdgeId,
   skip_start : NodeId,
-) -> Array[NodeId] {
-  let result : Array[NodeId] = []
-  // Outgoing edges: yield the target of each.
+) -> Iter[NodeId] {
   let mut o = next_out
-  while self.edges.get(o.index()) is Some(edge) {
-    o = edge.next_out
-    result.push(edge.dst)
-  }
-  // Incoming edges: yield the source of each, skipping self-loops.
   let mut i = next_in
-  while self.edges.get(i.index()) is Some(edge) {
-    i = edge.next_in
-    if edge.src != skip_start {
-      result.push(edge.src)
+  Iter::new(fn() {
+    // Outgoing edges: yield the target of the current edge, then advance.
+    if self.edges.get(o.index()) is Some(edge) {
+      o = edge.next_out
+      return Some(edge.dst)
     }
-  }
-  result
+    // Incoming edges: yield the source of each, skipping self-loops.
+    while self.edges.get(i.index()) is Some(edge) {
+      i = edge.next_in
+      if edge.src != skip_start {
+        return Some(edge.src)
+      }
+    }
+    None
+  })
 }
 
 ///|
@@ -93,43 +96,41 @@ fn[N, E] Graph::walk_neighbors(
 /// - Directed, Incoming: edges to `a`.
 /// - Undirected: all edges connected to `a` (both lists; self-loops once).
 ///
-/// Within each list, reverse insertion order, matching petgraph.
+/// Within each list, reverse insertion order, matching petgraph. Returns a
+/// fresh, lazy single-use `Iter[EdgeId]`.
 pub fn[N, E] Graph::edges_directed(
   self : Graph[N, E],
   a : NodeId,
   dir : Direction,
-) -> Array[EdgeId] {
+) -> Iter[EdgeId] {
   let (next_out, next_in) = match self.nodes.get(a.index()) {
     None => (EdgeId::end(), EdgeId::end())
     Some(n) => (n.next_out, n.next_in)
   }
-  let result : Array[EdgeId] = []
   let directed = self.is_directed()
   // iterate_over: Directed -> only `dir`; Undirected -> both lists.
   let do_out = !directed || dir == Outgoing
   let do_in = !directed || dir == Incoming
-  if do_out {
-    let mut o = next_out
-    while self.edges.get(o.index()) is Some(edge) {
+  let mut o = if do_out { next_out } else { EdgeId::end() }
+  let mut i = if do_in { next_in } else { EdgeId::end() }
+  Iter::new(fn() {
+    // Outgoing edges: yield the current edge id, then advance.
+    if self.edges.get(o.index()) is Some(edge) {
       let cur = o
       o = edge.next_out
-      result.push(cur)
+      return Some(cur)
     }
-  }
-  if do_in {
-    let mut i = next_in
+    // Incoming edges: yield the current edge id, skipping undirected self-loops
+    // so they are not iterated twice.
     while self.edges.get(i.index()) is Some(edge) {
       let cur = i
       i = edge.next_in
-      // In the undirected "both" case, skip self-loops in the incoming list so
-      // they are not iterated twice.
-      if !directed && edge.src == a {
-        continue
+      if directed || edge.src != a {
+        return Some(cur)
       }
-      result.push(cur)
     }
-  }
-  result
+    None
+  })
 }
 
 ///|
@@ -137,22 +138,27 @@ pub fn[N, E] Graph::edges_directed(
 /// with no edges in the given direction.
 ///
 /// For an undirected graph, both queries return the nodes with no edges at all.
-/// Listed in ascending index order. O(|V|).
+/// Listed in ascending index order. Returns a fresh, lazy single-use
+/// `Iter[NodeId]`; the scan is O(|V|).
 pub fn[N, E] Graph::externals(
   self : Graph[N, E],
   dir : Direction,
-) -> Array[NodeId] {
-  let result : Array[NodeId] = []
+) -> Iter[NodeId] {
   let directed = self.is_directed()
-  for i in 0..<self.nodes.length() {
-    let node = self.nodes[i]
-    let in_dir = node.next(dir)
-    let in_other = node.next(dir.opposite())
-    // A node is external if it has no edge in `dir`, and (for undirected) also
-    // none in the opposite direction.
-    if in_dir.is_end() && (directed || in_other.is_end()) {
-      result.push(NodeId::new(i))
+  let mut i = 0
+  Iter::new(fn() {
+    while i < self.nodes.length() {
+      let node = self.nodes[i]
+      let idx = i
+      i = i + 1
+      let in_dir = node.next(dir)
+      let in_other = node.next(dir.opposite())
+      // A node is external if it has no edge in `dir`, and (for undirected) also
+      // none in the opposite direction.
+      if in_dir.is_end() && (directed || in_other.is_end()) {
+        return Some(NodeId::new(idx))
+      }
     }
-  }
-  result
+    None
+  })
 }

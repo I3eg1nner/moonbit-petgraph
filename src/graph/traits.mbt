@@ -8,8 +8,8 @@
 /// types too.
 pub trait NeighborSource {
   fn node_count(Self) -> Int
-  fn node_ids(Self) -> Array[NodeId]
-  fn neighbors_directed(Self, NodeId, Direction) -> Array[NodeId]
+  fn node_ids(Self) -> Iter[NodeId]
+  fn neighbors_directed(Self, NodeId, Direction) -> Iter[NodeId]
 }
 
 ///|

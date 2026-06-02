@@ -1,14 +1,14 @@
 ///|
-/// Helper: render an array of NodeId as their integer indices.
-fn node_indices(xs : Array[@graph.NodeId]) -> Array[Int] {
+/// Helper: render a sequence of NodeId as their integer indices.
+fn node_indices(xs : Iter[@graph.NodeId]) -> Array[Int] {
   [
     for x in xs => x.index()
   ]
 }
 
 ///|
-/// Helper: render an array of EdgeId as their integer indices.
-fn edge_indices(xs : Array[@graph.EdgeId]) -> Array[Int] {
+/// Helper: render a sequence of EdgeId as their integer indices.
+fn edge_indices(xs : Iter[@graph.EdgeId]) -> Array[Int] {
   [
     for x in xs => x.index()
   ]

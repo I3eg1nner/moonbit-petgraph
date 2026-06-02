@@ -7,7 +7,7 @@
 /// visitor on the first back edge to stop the search early.
 pub fn[G : @graph.NeighborSource] is_cyclic_directed(g : G) -> Bool {
   let found = Ref(false)
-  @visit.depth_first_search(g, g.node_ids(), event => {
+  @visit.depth_first_search(g, g.node_ids().to_array(), event => {
     match event {
       BackEdge(_, _) => {
         found.val = true
@@ -41,6 +41,18 @@ pub fn[N, E] is_cyclic_undirected(g : @graph.Graph[N, E]) -> Bool {
 ///
 /// Port of petgraph's `algo::connected_components`: union the endpoints of every
 /// edge in a union-find, then count the distinct set roots.
+///
+/// # Example
+/// ```mbt check
+/// test {
+///   // Two disjoint undirected edges: {0,1} and {2,3}.
+///   let g : @graph.Graph[Int, Unit] = @graph.from_edges_undirected([
+///     (0, 1),
+///     (2, 3),
+///   ])
+///   debug_inspect(@algo.connected_components(g), content="2")
+/// }
+/// ```
 pub fn[N, E] connected_components(g : @graph.Graph[N, E]) -> Int {
   let node_sets = @unionfind.UnionFind::new(g.node_count())
   for edge in g.edge_ids() {

@@ -130,11 +130,10 @@ test "traversal and cycles" {
     (1, 3),
     (2, 3),
   ])
-  // Topological sort succeeds on a DAG.
-  match @algo.toposort(g) {
-    Ok(order) => debug_inspect(order.length(), content="4")
-    Err(_) => fail("expected a DAG")
-  }
+  // Topological sort returns the order directly on a DAG, and raises
+  // `@algo.Cycle` on a cyclic graph (use `try?` to get a `Result` instead).
+  let order = @algo.toposort(g)
+  debug_inspect(order.length(), content="4")
   // No directed cycle.
   debug_inspect(@algo.is_cyclic_directed(g), content="false")
 }

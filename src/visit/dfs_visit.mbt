@@ -55,6 +55,23 @@ pub(all) enum Control {
 /// The classification is faithful enough to detect back edges (and therefore
 /// cycles in directed graphs): an edge `(u, v)` to a discovered-but-unfinished
 /// `v` is reported as `BackEdge`.
+///
+/// # Example
+/// ```mbt check
+/// test {
+///   // 0 -> 1 -> 2 -> 0 forms a cycle; the edge 2 -> 0 is a back edge.
+///   let g : @graph.Graph[Int, Unit] = @graph.from_edges([(0, 1), (1, 2), (2, 0)])
+///   let back_edges = []
+///   @visit.depth_first_search(g, [@graph.NodeId::new(0)], event => {
+///     if event is BackEdge(u, v) {
+///       back_edges.push((u.index(), v.index()))
+///     }
+///     Continue
+///   })
+///   // The cycle surfaces as exactly one back edge: 2 -> 0.
+///   debug_inspect(back_edges, content="[(2, 0)]")
+/// }
+/// ```
 pub fn[G : @graph.NeighborSource] depth_first_search(
   graph : G,
   starts : Array[@graph.NodeId],

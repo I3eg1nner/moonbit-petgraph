@@ -119,8 +119,8 @@ Rather than reproduce petgraph's deep trait hierarchy (`GraphBase`, `GraphRef`, 
   ```moonbit
   pub trait NeighborSource {
     node_count(Self) -> Int
-    node_ids(Self) -> Array[NodeId]
-    neighbors_directed(Self, NodeId, Direction) -> Array[NodeId]
+    node_ids(Self) -> Iter[NodeId]
+    neighbors_directed(Self, NodeId, Direction) -> Iter[NodeId]
   }
   ```
   Implemented for `Graph[N, E]` for all `N, E`. Consumed by the traversals and the structural
@@ -168,6 +168,7 @@ and union-find internals, snapshot tests for DOT output, and property-style cros
 ## 7. Known limitations / future work
 
 - No `StableGraph`/`GraphMap`/`Csr`/`MatrixGraph` yet.
-- Neighbour iteration is materialised into `Array[NodeId]` rather than a lazy iterator, for
-  simplicity; a lazy `Iter` variant is possible future work.
+- Neighbour / node / edge iteration returns a lazy `Iter[_]` (idiomatic MoonBit; each accessor
+  call yields a fresh single-use iterator). Algorithms needing random access or repeated passes
+  over one node's neighbours materialise locally with `.to_array()` (e.g. iterative `tarjan_scc`).
 - `Measure` is instantiated for `Int`/`Double` only.

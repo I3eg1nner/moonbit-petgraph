@@ -1,10 +1,18 @@
 ///|
+/// Raised by `toposort` when the graph contains a cycle (including a self loop).
+/// Carries a representative node that participates in the cycle, mirroring
+/// petgraph's `Cycle<NodeId>`.
+pub suberror Cycle {
+  Cycle(@graph.NodeId)
+} derive(Debug)
+
+///|
 /// Topological sort of a directed graph.
 ///
-/// Returns `Ok(order)` where every node appears before all of its successors,
-/// if the graph is acyclic. If the graph contains a cycle (including a self
-/// loop), returns `Err(node)` for some node that participates in a cycle —
-/// mirroring petgraph's `Result<Vec<NodeId>, Cycle<NodeId>>`.
+/// Returns an `order` where every node appears before all of its successors, if
+/// the graph is acyclic. If the graph contains a cycle (including a self loop),
+/// raises `Cycle(node)` for some node that participates in the cycle. Use `try?`
+/// for a `Result[Array[NodeId], Cycle]` if you prefer to match on the outcome.
 ///
 /// Implemented with the `@visit.Topo` (Kahn-style) walker, which yields nodes in
 /// topological order while skipping any node that is still blocked by an
@@ -12,18 +20,18 @@
 /// graph has a cycle; we then locate and report a representative cycle node.
 pub fn[G : @graph.NeighborSource] toposort(
   g : G,
-) -> Result[Array[@graph.NodeId], @graph.NodeId] {
+) -> Array[@graph.NodeId] raise Cycle {
   let order = []
   let topo = @visit.Topo::new(g)
   while topo.next(g) is Some(nx) {
     order.push(nx)
   }
   if order.length() == g.node_count() {
-    Ok(order)
+    order
   } else {
     // Some nodes were never emitted -> they lie on (or behind) a cycle.
     // Report one such node, preferring one that is itself part of a cycle.
-    Err(find_cycle_node(g, order))
+    raise Cycle(find_cycle_node(g, order))
   }
 }
 

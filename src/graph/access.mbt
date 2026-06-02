@@ -95,17 +95,33 @@ pub fn[N, E] Graph::contains_edge(
 }
 
 ///|
-/// All node identifiers, in index order `0 .. node_count-1`.
-pub fn[N, E] Graph::node_ids(self : Graph[N, E]) -> Array[NodeId] {
-  [
-    for i in 0..<self.nodes.length() => NodeId::new(i)
-  ]
+/// All node identifiers, in index order `0 .. node_count-1`, as a fresh lazy
+/// single-use `Iter[NodeId]`.
+pub fn[N, E] Graph::node_ids(self : Graph[N, E]) -> Iter[NodeId] {
+  let mut i = 0
+  Iter::new(fn() {
+    if i < self.nodes.length() {
+      let cur = i
+      i = i + 1
+      Some(NodeId::new(cur))
+    } else {
+      None
+    }
+  })
 }
 
 ///|
-/// All edge identifiers, in index order `0 .. edge_count-1`.
-pub fn[N, E] Graph::edge_ids(self : Graph[N, E]) -> Array[EdgeId] {
-  [
-    for i in 0..<self.edges.length() => EdgeId::new(i)
-  ]
+/// All edge identifiers, in index order `0 .. edge_count-1`, as a fresh lazy
+/// single-use `Iter[EdgeId]`.
+pub fn[N, E] Graph::edge_ids(self : Graph[N, E]) -> Iter[EdgeId] {
+  let mut i = 0
+  Iter::new(fn() {
+    if i < self.edges.length() {
+      let cur = i
+      i = i + 1
+      Some(EdgeId::new(cur))
+    } else {
+      None
+    }
+  })
 }

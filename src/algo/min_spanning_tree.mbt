@@ -16,7 +16,7 @@ pub fn[N, E, K : Measure] min_spanning_tree(
   edge_cost~ : (@graph.EdgeId) -> K,
 ) -> Array[@graph.EdgeId] {
   let subgraphs = @unionfind.UnionFind::new(g.node_count())
-  let sort_edges : @priority_queue.PriorityQueue[MinScored[K, @graph.EdgeId]] = @priority_queue.PriorityQueue([],
+  let sort_edges : @priority_queue.PriorityQueue[MinScored[K, @graph.EdgeId]] = PriorityQueue([],
   )
   for edge in g.edge_ids() {
     sort_edges.push(MinScored(edge_cost(edge), edge))

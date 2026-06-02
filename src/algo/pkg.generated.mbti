@@ -25,9 +25,13 @@ pub fn[N, E, K : Measure] min_spanning_tree(@graph.Graph[N, E], edge_cost~ : (@g
 
 pub fn[N, E] tarjan_scc(@graph.Graph[N, E]) -> Array[Array[@graph.NodeId]]
 
-pub fn[G : @graph.NeighborSource] toposort(G) -> Result[Array[@graph.NodeId], @graph.NodeId]
+pub fn[G : @graph.NeighborSource] toposort(G) -> Array[@graph.NodeId] raise Cycle
 
 // Errors
+pub suberror Cycle {
+  Cycle(@graph.NodeId)
+} derive(@debug.Debug)
+
 pub suberror NegativeCycle derive(@debug.Debug)
 
 // Types and methods

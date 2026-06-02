@@ -3,7 +3,7 @@
 ///
 /// `next_out` / `next_in` are the heads of the intrusive outgoing and incoming
 /// edge linked lists, mirroring petgraph's `next: [EdgeIndex; 2]`.
-struct Node[N] {
+priv struct Node[N] {
   mut weight : N
   mut next_out : EdgeId
   mut next_in : EdgeId
@@ -33,7 +33,7 @@ fn[N] Node::set_next(self : Node[N], dir : Direction, e : EdgeId) -> Unit {
 /// `next_out` / `next_in` are the next links in the source's outgoing and the
 /// target's incoming edge lists, mirroring petgraph's `next: [EdgeIndex; 2]`.
 /// `src` / `dst` mirror petgraph's `node: [NodeIndex; 2]` (source, target).
-struct Edge[E] {
+priv struct Edge[E] {
   mut weight : E
   mut next_out : EdgeId
   mut next_in : EdgeId
@@ -91,7 +91,11 @@ fn[E] Edge::set_node(self : Edge[E], dir : Direction, n : NodeId) -> Unit {
 /// - Node and edge identifiers range over a compact interval `0 .. count-1`.
 /// - Removing a node or edge may shift the last node/edge into the freed slot
 ///   (`swap_remove` semantics), so identifiers are only stable across additions.
-pub struct Graph[N, E] {
+///
+/// The representation is opaque: construct with `Graph::new` /
+/// `new_undirected` / `with_capacity`, and query directedness via
+/// `is_directed()` rather than reaching into fields.
+struct Graph[N, E] {
   nodes : Array[Node[N]]
   edges : Array[Edge[E]]
   ty : Directedness

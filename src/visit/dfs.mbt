@@ -16,6 +16,20 @@ pub struct Dfs {
 
 ///|
 /// Create a new `Dfs`, seeding the stack with `start`.
+///
+/// # Example
+/// ```mbt check
+/// test {
+///   // A path 0 -> 1 -> 2.
+///   let g : @graph.Graph[Int, Unit] = @graph.from_edges([(0, 1), (1, 2)])
+///   let dfs = @visit.Dfs::new(g, @graph.NodeId::new(0))
+///   let order = []
+///   while dfs.next(g) is Some(n) {
+///     order.push(n.index())
+///   }
+///   debug_inspect(order, content="[0, 1, 2]")
+/// }
+/// ```
 pub fn[G : @graph.NeighborSource] Dfs::new(
   graph : G,
   start : @graph.NodeId,

@@ -26,11 +26,12 @@ pub struct UnionFind {
 /// Create a new `UnionFind` of `n` disjoint singleton sets `0..n`.
 ///
 /// # Example
-/// ```
+/// ```mbt check
 /// test {
 ///   let u = @unionfind.UnionFind::new(3)
-///   inspect(u.len(), content="3")
-///   inspect(u.find(0), content="0")
+///   debug_inspect(u.len(), content="3")
+///   // Every element starts as its own representative.
+///   debug_inspect(u.find(0), content="0")
 /// }
 /// ```
 pub fn UnionFind::new(n : Int) -> UnionFind {
@@ -118,6 +119,20 @@ pub fn UnionFind::try_find(self : UnionFind, x : Int) -> Int? {
 /// if they were already in the same set.
 ///
 /// Aborts if `x` or `y` is out of bounds (unless `x == y`).
+///
+/// # Example
+/// ```mbt check
+/// test {
+///   let u = @unionfind.UnionFind::new(4)
+///   u.union(0, 1) |> ignore
+///   u.union(2, 3) |> ignore
+///   debug_inspect(u.same_set(0, 1), content="true")
+///   debug_inspect(u.same_set(0, 2), content="false")
+///   // Merge the two pairs into a single set.
+///   u.union(1, 2) |> ignore
+///   debug_inspect(u.same_set(0, 3), content="true")
+/// }
+/// ```
 pub fn UnionFind::union(self : UnionFind, x : Int, y : Int) -> Bool {
   match self.try_union(x, y) {
     Some(merged) => merged
@@ -186,7 +201,19 @@ pub fn UnionFind::try_same_set(self : UnionFind, x : Int, y : Int) -> Bool? {
 ///|
 /// Return an array mapping each element to its representative (canonical label).
 ///
-/// Fully compresses every element along the way.
+/// Fully compresses every element along the way. Two elements share a label iff
+/// they are in the same set.
+///
+/// # Example
+/// ```mbt check
+/// test {
+///   let u = @unionfind.UnionFind::new(3)
+///   u.union(0, 2) |> ignore
+///   let labels = u.into_labeling()
+///   debug_inspect(labels[0] == labels[2], content="true")
+///   debug_inspect(labels[0] == labels[1], content="false")
+/// }
+/// ```
 pub fn UnionFind::into_labeling(self : UnionFind) -> Array[Int] {
   for ix in 0..<self.parent.length() {
     let rep = self.find(ix)

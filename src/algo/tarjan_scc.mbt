@@ -11,6 +11,23 @@
 /// the same reverse-topological order). A component is emitted exactly when its
 /// root finishes, and roots finish in reverse topological order, so the emission
 /// order matches petgraph without an extra sort.
+///
+/// # Example
+/// ```mbt check
+/// test {
+///   // {0,1,2} form a cycle (one SCC); node 3 stands alone.
+///   let g : @graph.Graph[Int, Unit] = @graph.from_edges([
+///     (0, 1),
+///     (1, 2),
+///     (2, 0),
+///     (2, 3),
+///   ])
+///   let sccs = @algo.tarjan_scc(g)
+///   let sizes = sccs.map(fn(c) { c.length() })
+///   sizes.sort()
+///   debug_inspect(sizes, content="[1, 3]")
+/// }
+/// ```
 pub fn[N, E] tarjan_scc(g : @graph.Graph[N, E]) -> Array[Array[@graph.NodeId]] {
   let n = g.node_count()
   let index = Array::make(n, -1) // discovery index, -1 = undiscovered
@@ -36,7 +53,10 @@ pub fn[N, E] tarjan_scc(g : @graph.Graph[N, E]) -> Array[Array[@graph.NodeId]] {
         scc_stack.push(v)
         on_stack[vi] = true
       }
-      let succs = g.neighbors_directed(v, Outgoing)
+      // Materialize: this iterative walk indexes `succs[ci]` and revisits the
+      // same successor list across work-stack iterations, so it needs random
+      // access, not a single-use `Iter`.
+      let succs = g.neighbors_directed(v, Outgoing).to_array()
       if ci < succs.length() {
         // Advance v's cursor and look at the next successor.
         work[work.length() - 1] = (v, ci + 1)

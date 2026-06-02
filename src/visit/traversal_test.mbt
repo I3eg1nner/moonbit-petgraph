@@ -1,6 +1,6 @@
 ///|
-/// Map a list of node ids to their integer indices for snapshot comparison.
-fn ids_to_ints(ids : Array[@graph.NodeId]) -> Array[Int] {
+/// Map a sequence of node ids to their integer indices for snapshot comparison.
+fn ids_to_ints(ids : Iter[@graph.NodeId]) -> Array[Int] {
   [
     for id in ids => id.index()
   ]

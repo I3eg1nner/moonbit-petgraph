@@ -15,6 +15,20 @@ pub struct Topo {
 ///|
 /// Create a new `Topo`, seeding the to-visit list with every node that has no
 /// incoming edges.
+///
+/// # Example
+/// ```mbt check
+/// test {
+///   // A linear DAG 0 -> 1 -> 2 -> 3.
+///   let g : @graph.Graph[Int, Unit] = @graph.from_edges([(0, 1), (1, 2), (2, 3)])
+///   let topo = @visit.Topo::new(g)
+///   let order = []
+///   while topo.next(g) is Some(n) {
+///     order.push(n.index())
+///   }
+///   debug_inspect(order, content="[0, 1, 2, 3]")
+/// }
+/// ```
 pub fn[G : @graph.NeighborSource] Topo::new(graph : G) -> Topo {
   let topo = Topo::empty(graph)
   topo.extend_with_initials(graph)
@@ -34,7 +48,8 @@ fn[G : @graph.NeighborSource] Topo::extend_with_initials(
   graph : G,
 ) -> Unit {
   for a in graph.node_ids() {
-    if graph.neighbors_directed(a, Incoming).is_empty() {
+    // No incoming neighbors: `any` short-circuits, so this is O(1) on the first.
+    if !graph.neighbors_directed(a, Incoming).any(_ => true) {
       self.tovisit.push(a)
     }
   }

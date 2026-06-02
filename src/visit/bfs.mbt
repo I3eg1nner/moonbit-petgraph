@@ -12,6 +12,20 @@ pub struct Bfs {
 
 ///|
 /// Create a new `Bfs`, marking `start` discovered and enqueuing it.
+///
+/// # Example
+/// ```mbt check
+/// test {
+///   // A path 0 -> 1 -> 2.
+///   let g : @graph.Graph[Int, Unit] = @graph.from_edges([(0, 1), (1, 2)])
+///   let bfs = @visit.Bfs::new(g, @graph.NodeId::new(0))
+///   let order = []
+///   while bfs.next(g) is Some(n) {
+///     order.push(n.index())
+///   }
+///   debug_inspect(order, content="[0, 1, 2]")
+/// }
+/// ```
 pub fn[G : @graph.NeighborSource] Bfs::new(
   graph : G,
   start : @graph.NodeId,

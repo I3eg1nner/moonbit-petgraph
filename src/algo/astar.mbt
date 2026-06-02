@@ -16,6 +16,36 @@
 /// Direct port of petgraph's `algo::astar`. The open set is a max-heap of
 /// `MinScored(f, node)` entries (reversed ordering ⇒ smallest `f` first), and the
 /// per-node score tracks `(f, h, g)` exactly as petgraph does.
+///
+/// # Example
+/// ```mbt check
+/// test {
+///   // Two routes from 0 to 3: 0->1->3 (cost 2) and 0->2->3 (cost 5).
+///   let g : @graph.Graph[Int, Int] = @graph.Graph::new()
+///   let n0 = g.add_node(0)
+///   let n1 = g.add_node(1)
+///   let n2 = g.add_node(2)
+///   let n3 = g.add_node(3)
+///   let _ = g.add_edge(n0, n1, 1)
+///   let _ = g.add_edge(n1, n3, 1)
+///   let _ = g.add_edge(n0, n2, 4)
+///   let _ = g.add_edge(n2, n3, 1)
+///   let result = @algo.astar(
+///     g,
+///     start=n0,
+///     is_goal=fn(n) { n == n3 },
+///     edge_cost=fn(e) { g.edge_weight(e).unwrap() },
+///     estimate_cost=fn(_n) { 0 }, // zero heuristic ⇒ behaves like Dijkstra
+///   )
+///   match result {
+///     Some((cost, path)) => {
+///       debug_inspect(cost, content="2")
+///       debug_inspect(path.length(), content="3") // 0 -> 1 -> 3
+///     }
+///     None => fail("expected a path")
+///   }
+/// }
+/// ```
 pub fn[N, E, K : Measure] astar(
   g : @graph.Graph[N, E],
   start~ : @graph.NodeId,
@@ -23,7 +53,7 @@ pub fn[N, E, K : Measure] astar(
   edge_cost~ : (@graph.EdgeId) -> K,
   estimate_cost~ : (@graph.NodeId) -> K,
 ) -> (K, Array[@graph.NodeId])? {
-  let visit_next : @priority_queue.PriorityQueue[MinScored[K, @graph.NodeId]] = @priority_queue.PriorityQueue([],
+  let visit_next : @priority_queue.PriorityQueue[MinScored[K, @graph.NodeId]] = PriorityQueue([],
   )
   // node -> (f, h, g)
   let scores : Map[@graph.NodeId, (K, K, K)] = {}

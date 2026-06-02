@@ -11,6 +11,23 @@
 ///      finishing order.
 ///   2. A DFS over the **forward** graph (outgoing edges), processing roots in
 ///      decreasing finishing time, collects each reachable tree as one SCC.
+///
+/// # Example
+/// ```mbt check
+/// test {
+///   // {0,1,2} form a cycle (one SCC); node 3 stands alone.
+///   let g : @graph.Graph[Int, Unit] = @graph.from_edges([
+///     (0, 1),
+///     (1, 2),
+///     (2, 0),
+///     (2, 3),
+///   ])
+///   let sccs = @algo.kosaraju_scc(g)
+///   let sizes = sccs.map(fn(c) { c.length() })
+///   sizes.sort()
+///   debug_inspect(sizes, content="[1, 3]")
+/// }
+/// ```
 pub fn[N, E] kosaraju_scc(
   g : @graph.Graph[N, E],
 ) -> Array[Array[@graph.NodeId]] {

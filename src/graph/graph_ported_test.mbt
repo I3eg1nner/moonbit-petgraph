@@ -5,16 +5,16 @@
 // StableGraph, GraphMap, etc.) are skipped — see the report for the full list.
 
 ///|
-/// Helper: render an array of NodeId as their integer indices.
-fn p_node_indices(xs : Array[@graph.NodeId]) -> Array[Int] {
+/// Helper: render a sequence of NodeId as their integer indices.
+fn p_node_indices(xs : Iter[@graph.NodeId]) -> Array[Int] {
   [
     for x in xs => x.index()
   ]
 }
 
 ///|
-/// Helper: render an array of EdgeId as their integer indices.
-fn p_edge_indices(xs : Array[@graph.EdgeId]) -> Array[Int] {
+/// Helper: render a sequence of EdgeId as their integer indices.
+fn p_edge_indices(xs : Iter[@graph.EdgeId]) -> Array[Int] {
   [
     for x in xs => x.index()
   ]
@@ -174,10 +174,10 @@ test "port: from_edges" {
   ])
   debug_inspect(gr.node_count(), content="4")
   debug_inspect(gr.edge_count(), content="6")
-  debug_inspect(gr.neighbors(@graph.NodeId::new(0)).length(), content="3")
-  debug_inspect(gr.neighbors(@graph.NodeId::new(1)).length(), content="3")
-  debug_inspect(gr.neighbors(@graph.NodeId::new(2)).length(), content="3")
-  debug_inspect(gr.neighbors(@graph.NodeId::new(3)).length(), content="3")
+  debug_inspect(gr.neighbors(@graph.NodeId::new(0)).count(), content="3")
+  debug_inspect(gr.neighbors(@graph.NodeId::new(1)).count(), content="3")
+  debug_inspect(gr.neighbors(@graph.NodeId::new(2)).count(), content="3")
+  debug_inspect(gr.neighbors(@graph.NodeId::new(3)).count(), content="3")
 }
 
 ///|

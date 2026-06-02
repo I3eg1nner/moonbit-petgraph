@@ -34,6 +34,27 @@ pub suberror NegativeCycle derive(Debug)
 ///
 /// On success returns `BellmanFordPaths { distances, predecessors }` indexed by
 /// node index.
+///
+/// # Example
+/// ```mbt check
+/// test {
+///   // Direct edge 0 ->10-> 2 is dearer than the detour 0 ->2-> 1 ->3-> 2.
+///   let g : @graph.Graph[Int, Int] = @graph.Graph::new()
+///   let n0 = g.add_node(0)
+///   let n1 = g.add_node(1)
+///   let n2 = g.add_node(2)
+///   let _ = g.add_edge(n0, n1, 2)
+///   let _ = g.add_edge(n1, n2, 3)
+///   let _ = g.add_edge(n0, n2, 10)
+///   // `bellman_ford` raises `NegativeCycle` if a reachable negative cycle
+///   // exists; this graph has none, so the call returns normally.
+///   let paths = @algo.bellman_ford(g, source=n0, edge_cost=fn(e) {
+///     g.edge_weight(e).unwrap()
+///   })
+///   // Cheapest 0 ~> 2 is 0->1->2 = 5.
+///   debug_inspect(paths.distances[n2.index()], content="Some(5)")
+/// }
+/// ```
 pub fn[N, E, K : Measure] bellman_ford(
   g : @graph.Graph[N, E],
   source~ : @graph.NodeId,
@@ -66,7 +87,7 @@ pub fn[N, E, K : Measure] bellman_ford(
         }
     }
   }
-  BellmanFordPaths::{ distances, predecessors }
+  { distances, predecessors }
 }
 
 ///|

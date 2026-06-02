@@ -3,8 +3,8 @@
 ///
 /// This mirrors petgraph's `IndexType::max()` for the default `u32` index type
 /// reinterpreted as a value; here the index type is `Int`, so the largest
-/// positive `Int` is used as the "end" marker.
-pub const END : Int = 2147483647
+/// positive `Int` is used as the "end" marker. Internal to this package.
+const END : Int = 2147483647
 
 ///|
 /// Node identifier.
@@ -27,14 +27,9 @@ pub fn NodeId::index(self : NodeId) -> Int {
 
 ///|
 /// The sentinel `NodeId` used to mark absence (end of an adjacency list).
-pub fn NodeId::end() -> NodeId {
+/// Internal to this package.
+fn NodeId::end() -> NodeId {
   NodeId(END)
-}
-
-///|
-/// Whether this `NodeId` is the `end` sentinel.
-pub fn NodeId::is_end(self : NodeId) -> Bool {
-  self.0 == END
 }
 
 ///|
@@ -57,13 +52,14 @@ pub fn EdgeId::index(self : EdgeId) -> Int {
 
 ///|
 /// The sentinel `EdgeId` used to mark absence / terminate an adjacency list.
-pub fn EdgeId::end() -> EdgeId {
+/// Internal to this package.
+fn EdgeId::end() -> EdgeId {
   EdgeId(END)
 }
 
 ///|
-/// Whether this `EdgeId` is the `end` sentinel.
-pub fn EdgeId::is_end(self : EdgeId) -> Bool {
+/// Whether this `EdgeId` is the `end` sentinel. Internal to this package.
+fn EdgeId::is_end(self : EdgeId) -> Bool {
   self.0 == END
 }
 
