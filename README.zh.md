@@ -194,6 +194,17 @@ test "traversal and cycles" {
 - `to_dot(g, config?) -> String`(要求 `N : Show`、`E : Show`);`config` 是
   `DotConfig` 标志数组:`NodeIndexLabel`、`EdgeIndexLabel`、`EdgeNoLabel`、
   `NodeNoLabel`、`GraphContentOnly`。
+- `to_dot` 只生成 DOT **字符串**;要渲染成图片需要安装
+  [Graphviz](https://graphviz.org)(例如 `apt-get install graphviz`),再把字符串
+  通过 `dot` 渲染:
+
+  ```bash
+  # 从 demo 中抽出 DOT 块并渲染。
+  moon run src/cmd/main | sed -n '/^\(di\)\?graph {/,/^}/p' | dot -Tsvg -o graph.svg
+  ```
+
+  或把字符串贴到在线查看器,例如
+  [GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/)。
 
 ## 文档
 

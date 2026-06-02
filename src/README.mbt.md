@@ -198,6 +198,17 @@ or an `Option` result, and `raise` a checked error.
 - `to_dot(g, config?) -> String` (requires `N : Show`, `E : Show`); `config` is an
   array of `DotConfig` flags: `NodeIndexLabel`, `EdgeIndexLabel`, `EdgeNoLabel`,
   `NodeNoLabel`, `GraphContentOnly`.
+- `to_dot` only produces the DOT *string*; to render it to an image you need
+  [Graphviz](https://graphviz.org) (e.g. `apt-get install graphviz`), then pipe
+  the string through `dot`:
+
+  ```bash
+  # Print just the DOT block from the demo and render it.
+  moon run src/cmd/main | sed -n '/^\(di\)\?graph {/,/^}/p' | dot -Tsvg -o graph.svg
+  ```
+
+  Or paste the string into an online viewer such as
+  [GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/).
 
 ## Documentation
 
