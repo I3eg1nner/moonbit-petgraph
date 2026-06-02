@@ -92,6 +92,10 @@ test "shortest path and spanning tree" {
 }
 ```
 
+用 `@dot` + Graphviz 渲染后,上面这张无向图看起来是这样:
+
+<img src="docs/demo-graph.svg" alt="demo 图(0–1–2–3 单位权环)经 Graphviz 渲染" width="110">
+
 把图导出为 Graphviz DOT 以便可视化:
 
 ```mbt check

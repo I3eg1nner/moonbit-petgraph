@@ -91,6 +91,10 @@ test "shortest path and spanning tree" {
 }
 ```
 
+Rendered with `@dot` and Graphviz, that undirected graph looks like this:
+
+<img src="../docs/demo-graph.svg" alt="The demo graph (0–1–2–3 cycle, unit weights) rendered with Graphviz" width="110">
+
 Export a graph to Graphviz DOT for visualization:
 
 ```mbt check
