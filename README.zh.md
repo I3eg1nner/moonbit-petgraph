@@ -127,15 +127,73 @@ test "traversal and cycles" {
     (1, 3),
     (2, 3),
   ])
-  // 在 DAG 上拓扑排序成功。
-  match @algo.toposort(g) {
-    Ok(order) => debug_inspect(order.length(), content="4")
-    Err(_) => fail("expected a DAG")
-  }
+  // 在 DAG 上拓扑排序直接返回顺序;遇到有环图会 raise `@algo.Cycle`
+  //(想要 `Result` 可改用 `try?`)。
+  let order = @algo.toposort(g)
+  debug_inspect(order.length(), content="4")
   // 不存在有向环。
   debug_inspect(@algo.is_cyclic_directed(g), content="false")
 }
 ```
+
+## 支持的接口
+
+本库拆分为若干聚焦的子包,按需导入即可。下面采用 MoonBit 记法:`~` 表示带标签参数,
+`?` 表示可选参数或 `Option` 结果,`raise` 表示可能抛出受检错误。
+
+### `@graph` —— 图数据结构
+
+- **构造**:`Graph::new()` / `Graph::new_undirected()`、
+  `Graph::with_capacity(nodes, edges)`,以及 `from_edges(pairs)` /
+  `from_edges_undirected(pairs)`——从 `(src, dst)` 下标对构建 `Graph[Int, Unit]`。
+- **修改**:`add_node(w) -> NodeId`、`add_edge(a, b, w) -> EdgeId`、
+  `update_edge(a, b, w)`(新增或覆盖)、`remove_node(n) -> N?`、
+  `remove_edge(e) -> E?`(swap-remove,返回被删权重)、
+  `set_node_weight` / `set_edge_weight`、`clear`、`clear_edges`、`reverse`(反转所有边方向)。
+- **查询**:`node_count`、`edge_count`、`is_directed`、`node_weight(n) -> N?`、
+  `edge_weight(e) -> E?`、`edge_endpoints(e) -> (NodeId, NodeId)?`、
+  `find_edge(a, b) -> EdgeId?`、`find_edge_undirected`、`contains_edge`。
+- **遍历**(均返回全新的、惰性的单次消费 `Iter`):
+  `node_ids() -> Iter[NodeId]`、`edge_ids() -> Iter[EdgeId]`、
+  `neighbors(n)` / `neighbors_directed(n, dir)` / `neighbors_undirected(n) -> Iter[NodeId]`、
+  `edges_directed(n, dir) -> Iter[EdgeId]`、`externals(dir) -> Iter[NodeId]`(源点 / 汇点)。
+- **类型**:`NodeId` / `EdgeId`(`::new`、`::index`)、`Direction`
+  (`Outgoing` / `Incoming`、`.opposite()`)、`Directedness`,以及遍历与算法所泛化依赖的
+  `NeighborSource` trait。
+
+### `@unionfind` —— 并查集(按秩合并 + 路径压缩)
+
+- `UnionFind::new(n)` / `new_empty()`、`new_set() -> Int`(追加一个元素)。
+- `union(a, b) -> Bool`、`same_set(a, b) -> Bool`、`find(x) -> Int`、
+  `into_labeling() -> Array[Int]`,以及带边界检查、返回 `Option` 的
+  `try_union` / `try_same_set` / `try_find`。
+
+### `@visit` —— 遍历
+
+- 遍历器 `Dfs`、`Bfs`、`DfsPostOrder`、`Topo`:`::new(graph[, start])`,随后
+  `.next(graph) -> NodeId?`;用 `reset` / `move_to` 重启。泛化于任意 `NeighborSource`。
+- `depth_first_search(graph, starts, visitor)` —— 事件驱动的 DFS;`visitor` 收到一个
+  `DfsEvent`(`Discover` / `TreeEdge` / `BackEdge` / `CrossForwardEdge` / `Finish`),
+  返回一个 `Control`(`Continue` / `Prune` / `Break`)。
+- `VisitMap` —— 以 `NodeId` 为键、可复用的已访问集合。
+
+### `@algo` —— 算法
+
+- **最短路径**:`dijkstra(g, start~, goal?, edge_cost~) -> Map[NodeId, K]`、
+  `astar(g, start~, is_goal~, edge_cost~, estimate_cost~) -> (K, Array[NodeId])?`、
+  `bellman_ford(g, source~, edge_cost~) -> BellmanFordPaths[K] raise NegativeCycle`。
+- **排序与环**:`toposort(g) -> Array[NodeId] raise Cycle`、
+  `is_cyclic_directed(g)`、`is_cyclic_undirected(g)`。
+- **连通分量**:`connected_components(g) -> Int`、
+  `kosaraju_scc(g)` / `tarjan_scc(g) -> Array[Array[NodeId]]`。
+- **生成树**:`min_spanning_tree(g, edge_cost~) -> Array[EdgeId]`(Kruskal)。
+- 边权泛化于 `Measure` trait(已为 `Int` 与 `Double` 实现)。
+
+### `@dot` —— Graphviz 导出
+
+- `to_dot(g, config?) -> String`(要求 `N : Show`、`E : Show`);`config` 是
+  `DotConfig` 标志数组:`NodeIndexLabel`、`EdgeIndexLabel`、`EdgeNoLabel`、
+  `NodeNoLabel`、`GraphContentOnly`。
 
 ## 文档
 

@@ -135,6 +135,70 @@ test "traversal and cycles" {
 }
 ```
 
+## Supported API
+
+The library is split into focused sub-packages; import only what you need.
+Notation below is MoonBit: `~` marks a labelled argument, `?` an optional argument
+or an `Option` result, and `raise` a checked error.
+
+### `@graph` — graph data structure
+
+- **Construct**: `Graph::new()` / `Graph::new_undirected()`,
+  `Graph::with_capacity(nodes, edges)`, and `from_edges(pairs)` /
+  `from_edges_undirected(pairs)` to build a `Graph[Int, Unit]` from `(src, dst)`
+  index pairs.
+- **Mutate**: `add_node(w) -> NodeId`, `add_edge(a, b, w) -> EdgeId`,
+  `update_edge(a, b, w)` (add or overwrite), `remove_node(n) -> N?`,
+  `remove_edge(e) -> E?` (swap-remove, returns the removed weight),
+  `set_node_weight` / `set_edge_weight`, `clear`, `clear_edges`, `reverse`.
+- **Query**: `node_count`, `edge_count`, `is_directed`, `node_weight(n) -> N?`,
+  `edge_weight(e) -> E?`, `edge_endpoints(e) -> (NodeId, NodeId)?`,
+  `find_edge(a, b) -> EdgeId?`, `find_edge_undirected`, `contains_edge`.
+- **Iterate** (each returns a fresh, lazy single-use `Iter`):
+  `node_ids() -> Iter[NodeId]`, `edge_ids() -> Iter[EdgeId]`,
+  `neighbors(n)` / `neighbors_directed(n, dir)` / `neighbors_undirected(n) -> Iter[NodeId]`,
+  `edges_directed(n, dir) -> Iter[EdgeId]`, `externals(dir) -> Iter[NodeId]`
+  (sources / sinks).
+- **Types**: `NodeId` / `EdgeId` (`::new`, `::index`), `Direction`
+  (`Outgoing` / `Incoming`, `.opposite()`), `Directedness`, and the
+  `NeighborSource` trait that the traversals and algorithms are generic over.
+
+### `@unionfind` — disjoint sets (union by rank + path compression)
+
+- `UnionFind::new(n)` / `new_empty()`, `new_set() -> Int` to append an element.
+- `union(a, b) -> Bool`, `same_set(a, b) -> Bool`, `find(x) -> Int`,
+  `into_labeling() -> Array[Int]`, plus bounds-checked `try_union` /
+  `try_same_set` / `try_find` variants returning `Option`.
+
+### `@visit` — traversals
+
+- Walkers `Dfs`, `Bfs`, `DfsPostOrder`, `Topo`: `::new(graph[, start])`, then
+  `.next(graph) -> NodeId?`; `reset` / `move_to` to restart. Generic over any
+  `NeighborSource`.
+- `depth_first_search(graph, starts, visitor)` — event-driven DFS; `visitor`
+  receives a `DfsEvent` (`Discover` / `TreeEdge` / `BackEdge` /
+  `CrossForwardEdge` / `Finish`) and returns a `Control`
+  (`Continue` / `Prune` / `Break`).
+- `VisitMap` — a reusable visited-set keyed by `NodeId`.
+
+### `@algo` — algorithms
+
+- **Shortest paths**: `dijkstra(g, start~, goal?, edge_cost~) -> Map[NodeId, K]`,
+  `astar(g, start~, is_goal~, edge_cost~, estimate_cost~) -> (K, Array[NodeId])?`,
+  `bellman_ford(g, source~, edge_cost~) -> BellmanFordPaths[K] raise NegativeCycle`.
+- **Order & cycles**: `toposort(g) -> Array[NodeId] raise Cycle`,
+  `is_cyclic_directed(g)`, `is_cyclic_undirected(g)`.
+- **Components**: `connected_components(g) -> Int`,
+  `kosaraju_scc(g)` / `tarjan_scc(g) -> Array[Array[NodeId]]`.
+- **Spanning tree**: `min_spanning_tree(g, edge_cost~) -> Array[EdgeId]` (Kruskal).
+- Edge costs are generic over the `Measure` trait (provided for `Int` and `Double`).
+
+### `@dot` — Graphviz export
+
+- `to_dot(g, config?) -> String` (requires `N : Show`, `E : Show`); `config` is an
+  array of `DotConfig` flags: `NodeIndexLabel`, `EdgeIndexLabel`, `EdgeNoLabel`,
+  `NodeNoLabel`, `GraphContentOnly`.
+
 ## Documentation
 
 - [`docs/DESIGN.md`](../docs/DESIGN.md) — architecture & design decisions.
