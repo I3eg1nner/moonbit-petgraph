@@ -1,5 +1,7 @@
 # petgraph for MoonBit
 
+**English** | [中文](README.zh.md)
+
 A MoonBit port of the Rust [petgraph](https://github.com/petgraph/petgraph)
 library — fast, flexible **graph data structures and algorithms**, supporting
 both directed and undirected graphs with arbitrary node and edge data.
@@ -21,7 +23,7 @@ This port focuses on the most-used core of petgraph:
 
 Provide a clear, idiomatic, well-tested MoonBit graph library whose behaviour
 matches petgraph's, with continuous integration, documentation, and reproducible
-examples. See [`docs/DESIGN.md`](../docs/DESIGN.md) for the architecture and the
+examples. See [`docs/DESIGN.md`](docs/DESIGN.md) for the architecture and the
 Rust→MoonBit adaptation rationale.
 
 ## Installation
@@ -138,16 +140,16 @@ test "traversal and cycles" {
 
 ## Documentation
 
-- [`docs/DESIGN.md`](../docs/DESIGN.md) — architecture & design decisions.
-- [`docs/TESTING.md`](../docs/TESTING.md) — how the library is tested.
-- [`docs/TODO.md`](../docs/TODO.md) — scope and migration progress.
+- [`docs/DESIGN.md`](docs/DESIGN.md) — architecture & design decisions.
+- [`docs/TESTING.md`](docs/TESTING.md) — how the library is tested.
+- [`docs/TODO.md`](docs/TODO.md) — scope and migration progress.
 
 中文文档(Chinese):
 
-- [`docs/测试文档.md`](../docs/测试文档.md) — 详细测试文档(用例清单、覆盖率、缺陷修复)。
-- [`docs/开发报告.md`](../docs/开发报告.md) — 开发报告(目标、设计决策、流程、问题与复现)。
+- [`docs/测试文档.md`](docs/测试文档.md) — 详细测试文档(用例清单、覆盖率、缺陷修复)。
+- [`docs/开发报告.md`](docs/开发报告.md) — 开发报告(目标、设计决策、流程、问题与复现)。
 
 ## License
 
-Dual-licensed under [MIT](../LICENSE-MIT) or
-[Apache-2.0](../LICENSE-APACHE), matching upstream petgraph.
+Dual-licensed under [MIT](LICENSE-MIT) or
+[Apache-2.0](LICENSE-APACHE), matching upstream petgraph.
