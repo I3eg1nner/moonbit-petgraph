@@ -57,7 +57,7 @@ unionfind  (leaf)        graph (leaf)
 
 - [x] **P5 test fidelity** — ported 58 of petgraph's own in-scope test cases (`*_ported_test.mbt`, original Rust names preserved), with a documented out-of-scope skip list (测试文档 §9). No implementation bugs surfaced.
 
-**Result: 133 tests passing on wasm-gc/js/native (75 self-authored + 58 ported from petgraph); `moon check --deny-warn --target all` clean; ~90% line coverage (850/942).**
+**Result: 145 tests passing on all four backends — wasm/wasm-gc/js/native (87 self-authored, incl. doc-test examples on every public entry point, + 58 ported from petgraph); `moon check --deny-warn --target all` clean; ~90% line coverage (865/955).**
 
 > **Toolchain convention (enforced):** This MoonBit build deprecates `Show` for debugging.
 > Use `derive(Debug)` (not `Show`) on custom types and `debug_inspect(...)` (not `inspect`) in

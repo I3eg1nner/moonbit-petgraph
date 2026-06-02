@@ -10,7 +10,7 @@ are expected to produce the same results as the originals.
 export PATH="$HOME/.moon/bin:$PATH"   # if moon is not already on PATH
 
 moon test                 # run all tests (default wasm-gc backend)
-moon test --target all    # run on every backend (wasm-gc, js, native)
+moon test --target all    # run on every backend (wasm, wasm-gc, js, native)
 moon test src/graph       # run only one package's tests
 moon test --enable-coverage && moon coverage report -f summary   # coverage
 ```
@@ -77,7 +77,7 @@ stable across runs and backends.
 
 ## Current status
 
-**133 tests pass** on all three backends (`wasm-gc`, `js`, `native`), and
+**145 tests pass** on all four backends (`wasm`, `wasm-gc`, `js`, `native`), and
 `moon check --deny-warn --target all` is clean. Of these, **58 are ported
 faithfully from petgraph's own test suite** (in `*_ported_test.mbt` files, keeping
 the original Rust test names — see the Chinese `测试文档.md` §9 for the full
@@ -86,14 +86,18 @@ correspondence and the documented out-of-scope skip list). Per-package counts:
 | Package | Tests | of which ported | Notes |
 |---------|------:|----:|-------|
 | `graph` | 33 | 13 | edge-list invariant white-box tests + ported core tests |
-| `unionfind` | 24 | 10 | full port of petgraph `tests/unionfind.rs` |
-| `visit` | 17 | 6 | traversal orders, cycle skipping, DFS events |
+| `unionfind` | 27 | 10 | full port of petgraph `tests/unionfind.rs` + doc-test examples |
+| `visit` | 21 | 6 | traversal orders, cycle skipping, DFS events + doc-test examples |
 | `dot` | 13 | 5 | snapshot tests vs. petgraph golden strings |
-| `algo` | 43 | 24 | shortest paths, SCC, MST, toposort + cross-checks |
+| `algo` | 48 | 24 | shortest paths, SCC, MST, toposort + cross-checks + doc-test examples |
 | root (`README.mbt.md`) | 3 | 0 | doc-tested usage examples |
 
+Every public algorithm, traversal, and unionfind entry point also carries a
+runnable `mbt check` doc-test example (counted above); bare ```` ``` ```` fences
+in doc comments are *not* compiled or run, so the examples use `mbt check`.
+
 The 58 ported tests passed with **no implementation changes**, validating
-behavioural fidelity to petgraph. Line coverage is ~90% (850/942); the untested
+behavioural fidelity to petgraph. Line coverage is ~90% (865/955); the untested
 remainder is mostly the `cmd/main` demo and a few defensive branches. Reproduce
 locally:
 
