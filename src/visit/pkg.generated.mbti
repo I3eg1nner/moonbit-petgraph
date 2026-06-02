@@ -1,0 +1,78 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbit-community/petgraph/visit"
+
+import {
+  "moonbit-community/petgraph/graph",
+  "moonbitlang/core/debug",
+  "moonbitlang/core/deque",
+}
+
+// Values
+pub fn[G : @graph.NeighborSource] depth_first_search(G, Array[@graph.NodeId], (DfsEvent) -> Control) -> Unit
+
+// Errors
+
+// Types and methods
+pub struct Bfs {
+  queue : @deque.Deque[@graph.NodeId]
+  discovered : VisitMap
+}
+pub fn[G : @graph.NeighborSource] Bfs::new(G, @graph.NodeId) -> Self
+pub fn[G : @graph.NeighborSource] Bfs::next(Self, G) -> @graph.NodeId?
+
+pub(all) enum Control {
+  Continue
+  Prune
+  Break
+} derive(Eq, @debug.Debug)
+
+pub struct Dfs {
+  stack : Array[@graph.NodeId]
+  discovered : VisitMap
+}
+pub fn[G : @graph.NeighborSource] Dfs::empty(G) -> Self
+pub fn Dfs::move_to(Self, @graph.NodeId) -> Unit
+pub fn[G : @graph.NeighborSource] Dfs::new(G, @graph.NodeId) -> Self
+pub fn[G : @graph.NeighborSource] Dfs::next(Self, G) -> @graph.NodeId?
+pub fn Dfs::reset(Self) -> Unit
+
+pub enum DfsEvent {
+  Discover(@graph.NodeId, Int)
+  TreeEdge(@graph.NodeId, @graph.NodeId)
+  BackEdge(@graph.NodeId, @graph.NodeId)
+  CrossForwardEdge(@graph.NodeId, @graph.NodeId)
+  Finish(@graph.NodeId, Int)
+} derive(@debug.Debug)
+
+pub struct DfsPostOrder {
+  stack : Array[@graph.NodeId]
+  discovered : VisitMap
+  finished : VisitMap
+}
+pub fn[G : @graph.NeighborSource] DfsPostOrder::empty(G) -> Self
+pub fn DfsPostOrder::move_to(Self, @graph.NodeId) -> Unit
+pub fn[G : @graph.NeighborSource] DfsPostOrder::new(G, @graph.NodeId) -> Self
+pub fn[G : @graph.NeighborSource] DfsPostOrder::next(Self, G) -> @graph.NodeId?
+pub fn DfsPostOrder::reset(Self) -> Unit
+
+pub struct Topo {
+  tovisit : Array[@graph.NodeId]
+  ordered : VisitMap
+}
+pub fn[G : @graph.NeighborSource] Topo::empty(G) -> Self
+pub fn[G : @graph.NeighborSource] Topo::new(G) -> Self
+pub fn[G : @graph.NeighborSource] Topo::next(Self, G) -> @graph.NodeId?
+pub fn[G : @graph.NeighborSource] Topo::reset(Self, G) -> Unit
+
+pub struct VisitMap {
+  visited : Array[Bool]
+}
+pub fn VisitMap::is_visited(Self, @graph.NodeId) -> Bool
+pub fn VisitMap::new(Int) -> Self
+pub fn VisitMap::reset(Self) -> Unit
+pub fn VisitMap::visit(Self, @graph.NodeId) -> Bool
+
+// Type aliases
+
+// Traits
+

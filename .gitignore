@@ -1,0 +1,8 @@
+# MoonBit build artifacts
+_build/
+target/
+.mooncakes/
+
+# Coverage data
+*.coverage
+moonbit_coverage_*.txt

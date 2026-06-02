@@ -1,0 +1,53 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbit-community/petgraph/algo"
+
+import {
+  "moonbit-community/petgraph/graph",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn[N, E, K : Measure] astar(@graph.Graph[N, E], start~ : @graph.NodeId, is_goal~ : (@graph.NodeId) -> Bool, edge_cost~ : (@graph.EdgeId) -> K, estimate_cost~ : (@graph.NodeId) -> K) -> (K, Array[@graph.NodeId])?
+
+pub fn[N, E, K : Measure] bellman_ford(@graph.Graph[N, E], source~ : @graph.NodeId, edge_cost~ : (@graph.EdgeId) -> K) -> BellmanFordPaths[K] raise NegativeCycle
+
+pub fn[N, E] connected_components(@graph.Graph[N, E]) -> Int
+
+pub fn[N, E, K : Measure] dijkstra(@graph.Graph[N, E], start~ : @graph.NodeId, goal? : @graph.NodeId, edge_cost~ : (@graph.EdgeId) -> K) -> Map[@graph.NodeId, K]
+
+pub fn[G : @graph.NeighborSource] is_cyclic_directed(G) -> Bool
+
+pub fn[N, E] is_cyclic_undirected(@graph.Graph[N, E]) -> Bool
+
+pub fn[N, E] kosaraju_scc(@graph.Graph[N, E]) -> Array[Array[@graph.NodeId]]
+
+pub fn[N, E, K : Measure] min_spanning_tree(@graph.Graph[N, E], edge_cost~ : (@graph.EdgeId) -> K) -> Array[@graph.EdgeId]
+
+pub fn[N, E] tarjan_scc(@graph.Graph[N, E]) -> Array[Array[@graph.NodeId]]
+
+pub fn[G : @graph.NeighborSource] toposort(G) -> Result[Array[@graph.NodeId], @graph.NodeId]
+
+// Errors
+pub suberror NegativeCycle derive(@debug.Debug)
+
+// Types and methods
+pub struct BellmanFordPaths[K] {
+  distances : Array[K?]
+  predecessors : Array[@graph.NodeId?]
+} derive(@debug.Debug)
+
+type MinScored[K, T]
+pub impl[K : Measure, T] Compare for MinScored[K, T]
+pub impl[K : Measure, T] Eq for MinScored[K, T]
+
+// Type aliases
+
+// Traits
+pub trait Measure {
+  fn zero() -> Self
+  fn add(Self, Self) -> Self
+  fn compare(Self, Self) -> Int
+}
+pub impl Measure for Int
+pub impl Measure for Double
+

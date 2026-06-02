@@ -1,0 +1,5 @@
+import {
+  "moonbit-community/petgraph/graph",
+  "moonbit-community/petgraph/algo",
+  "moonbit-community/petgraph/dot",
+} for "test"

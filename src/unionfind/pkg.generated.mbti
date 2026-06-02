@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbit-community/petgraph/unionfind"
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct UnionFind {
+  parent : Array[Int]
+  rank : Array[Int]
+}
+pub fn UnionFind::find(Self, Int) -> Int
+pub fn UnionFind::find_mut(Self, Int) -> Int
+pub fn UnionFind::into_labeling(Self) -> Array[Int]
+pub fn UnionFind::is_empty(Self) -> Bool
+pub fn UnionFind::len(Self) -> Int
+pub fn UnionFind::new(Int) -> Self
+pub fn UnionFind::new_empty() -> Self
+pub fn UnionFind::new_set(Self) -> Int
+pub fn UnionFind::same_set(Self, Int, Int) -> Bool
+pub fn UnionFind::try_find(Self, Int) -> Int?
+pub fn UnionFind::try_same_set(Self, Int, Int) -> Bool?
+pub fn UnionFind::try_union(Self, Int, Int) -> Bool?
+pub fn UnionFind::union(Self, Int, Int) -> Bool
+
+// Type aliases
+
+// Traits
+

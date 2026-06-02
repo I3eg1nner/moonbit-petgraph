@@ -1,0 +1,25 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbit-community/petgraph/dot"
+
+import {
+  "moonbit-community/petgraph/graph",
+}
+
+// Values
+pub fn[N : Show, E : Show] to_dot(@graph.Graph[N, E], config? : Array[DotConfig]) -> String
+
+// Errors
+
+// Types and methods
+pub(all) enum DotConfig {
+  NodeIndexLabel
+  EdgeIndexLabel
+  EdgeNoLabel
+  NodeNoLabel
+  GraphContentOnly
+} derive(Eq)
+
+// Type aliases
+
+// Traits
+

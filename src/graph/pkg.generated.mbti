@@ -1,0 +1,90 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbit-community/petgraph/graph"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub const END : Int = 2147483647
+
+pub fn from_edges(Array[(Int, Int)]) -> Graph[Int, Unit]
+
+pub fn from_edges_undirected(Array[(Int, Int)]) -> Graph[Int, Unit]
+
+// Errors
+
+// Types and methods
+pub(all) enum Directedness {
+  Directed
+  Undirected
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Direction {
+  Outgoing
+  Incoming
+} derive(Eq, @debug.Debug)
+pub fn Direction::index(Self) -> Int
+pub fn Direction::opposite(Self) -> Self
+
+type Edge[E]
+
+pub struct EdgeId(Int) derive(Compare, Eq, Hash, @debug.Debug)
+pub fn EdgeId::end() -> Self
+pub fn EdgeId::index(Self) -> Int
+pub fn EdgeId::is_end(Self) -> Bool
+pub fn EdgeId::new(Int) -> Self
+
+pub struct Graph[N, E] {
+  nodes : Array[Node[N]]
+  edges : Array[Edge[E]]
+  ty : Directedness
+}
+pub fn[N, E] Graph::add_edge(Self[N, E], NodeId, NodeId, E) -> EdgeId
+pub fn[N, E] Graph::add_node(Self[N, E], N) -> NodeId
+pub fn[N, E] Graph::clear(Self[N, E]) -> Unit
+pub fn[N, E] Graph::clear_edges(Self[N, E]) -> Unit
+pub fn[N, E] Graph::contains_edge(Self[N, E], NodeId, NodeId) -> Bool
+pub fn[N, E] Graph::edge_count(Self[N, E]) -> Int
+pub fn[N, E] Graph::edge_endpoints(Self[N, E], EdgeId) -> (NodeId, NodeId)?
+pub fn[N, E] Graph::edge_ids(Self[N, E]) -> Array[EdgeId]
+pub fn[N, E] Graph::edge_weight(Self[N, E], EdgeId) -> E?
+pub fn[N, E] Graph::edges_directed(Self[N, E], NodeId, Direction) -> Array[EdgeId]
+pub fn[N, E] Graph::externals(Self[N, E], Direction) -> Array[NodeId]
+pub fn[N, E] Graph::find_edge(Self[N, E], NodeId, NodeId) -> EdgeId?
+pub fn[N, E] Graph::find_edge_undirected(Self[N, E], NodeId, NodeId) -> (EdgeId, Direction)?
+pub fn[N, E] Graph::is_directed(Self[N, E]) -> Bool
+pub fn[N, E] Graph::neighbors(Self[N, E], NodeId) -> Array[NodeId]
+pub fn[N, E] Graph::neighbors_directed(Self[N, E], NodeId, Direction) -> Array[NodeId]
+pub fn[N, E] Graph::neighbors_undirected(Self[N, E], NodeId) -> Array[NodeId]
+pub fn[N, E] Graph::new() -> Self[N, E]
+pub fn[N, E] Graph::new_undirected() -> Self[N, E]
+pub fn[N, E] Graph::node_count(Self[N, E]) -> Int
+pub fn[N, E] Graph::node_ids(Self[N, E]) -> Array[NodeId]
+pub fn[N, E] Graph::node_weight(Self[N, E], NodeId) -> N?
+pub fn[N, E] Graph::remove_edge(Self[N, E], EdgeId) -> E?
+pub fn[N, E] Graph::remove_node(Self[N, E], NodeId) -> N?
+pub fn[N, E] Graph::reverse(Self[N, E]) -> Unit
+pub fn[N, E] Graph::set_edge_weight(Self[N, E], EdgeId, E) -> Unit
+pub fn[N, E] Graph::set_node_weight(Self[N, E], NodeId, N) -> Unit
+pub fn[N, E] Graph::update_edge(Self[N, E], NodeId, NodeId, E) -> EdgeId
+pub fn[N, E] Graph::with_capacity(Int, Int) -> Self[N, E]
+pub impl[N, E] NeighborSource for Graph[N, E]
+
+type Node[N]
+
+pub struct NodeId(Int) derive(Compare, Eq, Hash, @debug.Debug)
+pub fn NodeId::end() -> Self
+pub fn NodeId::index(Self) -> Int
+pub fn NodeId::is_end(Self) -> Bool
+pub fn NodeId::new(Int) -> Self
+
+// Type aliases
+
+// Traits
+pub trait NeighborSource {
+  fn node_count(Self) -> Int
+  fn node_ids(Self) -> Array[NodeId]
+  fn neighbors_directed(Self, NodeId, Direction) -> Array[NodeId]
+}
+
