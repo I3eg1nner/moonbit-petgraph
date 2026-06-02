@@ -99,6 +99,12 @@ Rendered with `@dot` and Graphviz, that undirected graph looks like this:
 
 <img src="docs/demo-graph.svg" alt="The demo graph (0–1–2–3 cycle, unit weights) rendered with Graphviz" width="110">
 
+Each ellipse is a **node** (its label is the node weight, which this example sets
+equal to the index `0`–`3`) and each line is an undirected **edge** (its label is
+the edge weight, all `1` here). This is the 4-cycle `0–1–2–3–0` built above:
+`dijkstra` from node `0` gives distances `{0: 0, 1: 1, 2: 2, 3: 1}`, and
+`min_spanning_tree` keeps 3 of the 4 edges — dropping one edge of the cycle.
+
 Export a graph to Graphviz DOT for visualization:
 
 ```mbt check

@@ -96,6 +96,11 @@ test "shortest path and spanning tree" {
 
 <img src="docs/demo-graph.svg" alt="demo 图(0–1–2–3 单位权环)经 Graphviz 渲染" width="110">
 
+图中每个椭圆是一个**结点**(标签是结点权重,本例设为其下标 `0`–`3`),每条连线是一条
+无向**边**(标签是边权,这里都是 `1`)。这正是上面构建的四元环 `0–1–2–3–0`:从结点 `0`
+出发的 `dijkstra` 距离为 `{0: 0, 1: 1, 2: 2, 3: 1}`,而 `min_spanning_tree` 会保留 4 条边
+中的 3 条——丢弃环上的一条边。
+
 把图导出为 Graphviz DOT 以便可视化:
 
 ```mbt check
