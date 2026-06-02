@@ -1,5 +1,7 @@
 # petgraph for MoonBit
 
+[![CI](https://github.com/I3eg1nner/moonbit-petgraph/actions/workflows/ci.yml/badge.svg)](https://github.com/I3eg1nner/moonbit-petgraph/actions/workflows/ci.yml)
+
 **English** | [中文](README.zh.md)
 
 A MoonBit port of the Rust [petgraph](https://github.com/petgraph/petgraph)
