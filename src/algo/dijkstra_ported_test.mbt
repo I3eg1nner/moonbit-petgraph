@@ -323,10 +323,12 @@ test "bellman_ford doctest (negative cycle is Err)" {
     g.add_edge(@graph.NodeId::new(e.0), @graph.NodeId::new(e.1), e.2) |> ignore
   }
   let ew = fn(e : @graph.EdgeId) -> Double { g.edge_weight(e).unwrap() }
-  let result : Result[@algo.BellmanFordPaths[Double], Error] = try? @algo.bellman_ford(
-    g,
-    source=@graph.NodeId::new(0),
-    edge_cost=ew,
-  )
-  inspect(result is Err(_), content="true")
+  let detected = try
+    @algo.bellman_ford(g, source=@graph.NodeId::new(0), edge_cost=ew)
+  catch {
+    _ => true
+  } noraise {
+    _ => false
+  }
+  inspect(detected, content="true")
 }

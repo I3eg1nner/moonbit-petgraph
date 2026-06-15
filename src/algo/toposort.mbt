@@ -11,8 +11,8 @@ pub suberror Cycle {
 ///
 /// Returns an `order` where every node appears before all of its successors, if
 /// the graph is acyclic. If the graph contains a cycle (including a self loop),
-/// raises `Cycle(node)` for some node that participates in the cycle. Use `try?`
-/// for a `Result[Array[NodeId], Cycle]` if you prefer to match on the outcome.
+/// raises `Cycle(node)` for some node that participates in the cycle. Wrap the
+/// call in `try ... catch` if you prefer to handle the cyclic case explicitly.
 ///
 /// Implemented with the `@visit.Topo` (Kahn-style) walker, which yields nodes in
 /// topological order while skipping any node that is still blocked by an

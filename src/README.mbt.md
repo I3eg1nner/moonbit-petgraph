@@ -137,7 +137,7 @@ test "traversal and cycles" {
     (2, 3),
   ])
   // Topological sort returns the order directly on a DAG, and raises
-  // `@algo.Cycle` on a cyclic graph (use `try?` to get a `Result` instead).
+  // `@algo.Cycle` on a cyclic graph (wrap in `try … catch` to handle that).
   let order = @algo.toposort(g)
   debug_inspect(order.length(), content="4")
   // No directed cycle.
@@ -249,7 +249,7 @@ MoonBit idioms.
 | `NodeIndex` / `EdgeIndex` | `NodeId` / `EdgeId` (`.index()` kept) | shorter; not a Rust index newtype |
 | `node_indices()` / `edge_indices()` | `node_ids()` / `edge_ids()` | follows the `NodeId` rename |
 | named iterators (`Neighbors`, `NodeIndices`, …) | lazy `Iter[T]` | MoonBit's standard iterator; `for x in …` is identical |
-| `toposort -> Result<_, Cycle>` | `toposort(…) raise Cycle` | MoonBit error idiom — use `try?` for a `Result` |
+| `toposort -> Result<_, Cycle>` | `toposort(…) raise Cycle` | MoonBit error idiom — handle with `try … catch` |
 | `bellman_ford -> Result<_, NegativeCycle>` | `… raise NegativeCycle` | same |
 | `Ty` type parameter (`Directed` / `Undirected`) | runtime `new` vs `new_undirected` | no const-generic directedness |
 | `FloatMeasure` / numeric bounds | `Measure` trait (`Int`, `Double`) | hand-written numeric trait |

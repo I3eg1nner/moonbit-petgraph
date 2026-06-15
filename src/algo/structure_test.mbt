@@ -73,7 +73,11 @@ test "is_cyclic_directed true iff toposort is Err (several graphs)" {
   let self_loop = @graph.from_edges([(0, 0)])
   for g in [dag, cyclic, self_loop] {
     let cyc = @algo.is_cyclic_directed(g)
-    let topo_err = (try? @algo.toposort(g)) is Err(_)
+    let topo_err = try @algo.toposort(g) catch {
+      _ => true
+    } noraise {
+      _ => false
+    }
     assert_eq(cyc, topo_err)
   }
   // Spot-check the actual values.

@@ -158,12 +158,14 @@ test "bellman_ford distances and predecessors (petgraph doc example)" {
 test "bellman_ford detects negative cycle" {
   // 0 -> 1 -> 2 -> 0 with total weight -1 forms a reachable negative cycle.
   let g = build_weighted([(0, 1, 1), (1, 2, -3), (2, 0, 1)])
-  let result : Result[@algo.BellmanFordPaths[Int], Error] = try? @algo.bellman_ford(
-    g,
-    source=@graph.NodeId::new(0),
-    edge_cost=weight_of(g),
-  )
-  inspect(result is Err(_), content="true")
+  let detected = try
+    @algo.bellman_ford(g, source=@graph.NodeId::new(0), edge_cost=weight_of(g))
+  catch {
+    _ => true
+  } noraise {
+    _ => false
+  }
+  inspect(detected, content="true")
 }
 
 ///|

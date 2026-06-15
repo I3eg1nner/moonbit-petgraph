@@ -280,7 +280,12 @@ test "test_toposort" {
     (7, 9, 3),
     (8, 9, 1),
   ])
-  guard (try? @algo.toposort(g)) is Ok(order) else { fail("expected acyclic") }
+  let order = @algo.toposort(g) catch {
+    _ => {
+      fail("expected acyclic")
+      []
+    }
+  }
   assert_topo_order(g, order)
 }
 
@@ -289,7 +294,12 @@ test "test_toposort" {
 test "test_toposort_eq" {
   // a=0 b=1, single edge a->b ; toposort must be exactly [a, b].
   let g = @graph.from_edges([(0, 1)])
-  guard (try? @algo.toposort(g)) is Ok(order) else { fail("expected acyclic") }
+  let order = @algo.toposort(g) catch {
+    _ => {
+      fail("expected acyclic")
+      []
+    }
+  }
   json_inspect([ for n in order => n.index() ], content=[0, 1])
 }
 

@@ -137,7 +137,7 @@ test "traversal and cycles" {
     (2, 3),
   ])
   // 在 DAG 上拓扑排序直接返回顺序;遇到有环图会 raise `@algo.Cycle`
-  //(想要 `Result` 可改用 `try?`)。
+  //(需要处理环时用 `try … catch` 捕获)。
   let order = @algo.toposort(g)
   debug_inspect(order.length(), content="4")
   // 不存在有向环。
@@ -243,7 +243,7 @@ test "traversal and cycles" {
 | `NodeIndex` / `EdgeIndex` | `NodeId` / `EdgeId`(保留 `.index()`) | 更短;并非 Rust 的 index newtype |
 | `node_indices()` / `edge_indices()` | `node_ids()` / `edge_ids()` | 随 `NodeId` 改名 |
 | 具名迭代器(`Neighbors`、`NodeIndices` 等) | 惰性 `Iter[T]` | MoonBit 标准迭代器;`for x in …` 用法完全一致 |
-| `toposort -> Result<_, Cycle>` | `toposort(…) raise Cycle` | MoonBit 错误惯用法——想要 `Result` 用 `try?` |
+| `toposort -> Result<_, Cycle>` | `toposort(…) raise Cycle` | MoonBit 错误惯用法——用 `try … catch` 捕获 |
 | `bellman_ford -> Result<_, NegativeCycle>` | `… raise NegativeCycle` | 同上 |
 | `Ty` 类型参数(`Directed` / `Undirected`) | 运行时 `new` 与 `new_undirected` 二选一 | 不用常量泛型表达有向性 |
 | `FloatMeasure` / 数值约束 | `Measure` trait(`Int`、`Double`) | 手写的数值 trait |
