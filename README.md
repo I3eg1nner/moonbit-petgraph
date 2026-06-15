@@ -51,7 +51,7 @@ Then import the sub-packages you need in your package's `moon.pkg`:
 To build this repository from source:
 
 ```bash
-git clone <repo-url> && cd petgraph_mbt
+git clone https://github.com/I3eg1nner/moonbit-petgraph.git && cd moonbit-petgraph
 moon check        # type-check
 moon test         # run the test suite
 moon run src/cmd/main   # run the demo

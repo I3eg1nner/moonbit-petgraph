@@ -48,7 +48,7 @@ moon add moonbit-community/petgraph
 从源码构建本仓库:
 
 ```bash
-git clone <repo-url> && cd petgraph_mbt
+git clone https://github.com/I3eg1nner/moonbit-petgraph.git && cd moonbit-petgraph
 moon check        # 类型检查
 moon test         # 运行测试套件
 moon run src/cmd/main   # 运行演示
