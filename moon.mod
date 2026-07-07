@@ -10,6 +10,4 @@ description = "A MoonBit port of petgraph: graph data structures and algorithms.
 
 keywords = [ "graph", "algorithms", "data-structures", "petgraph" ]
 
-options(
-  source: "src",
-)
+source = "src"

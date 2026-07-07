@@ -8,8 +8,9 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  check:
-    name: Format & Check (multi-backend)
+  # Acceptance gates: moon check, moon fmt, moon info, moon test.
+  verify:
+    name: Verify (check / fmt / info / test)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,19 +21,34 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
 
-      - name: Check formatting
-        run: moon fmt --check
-
-      - name: Type check (all backends)
+      # 1) Type check, all backends, warnings are errors.
+      - name: moon check
         run: moon check --target all --deny-warn
 
+      # 2) Formatting must be canonical (source + moon.mod / moon.pkg).
+      - name: moon fmt && git diff --exit-code
+        run: |
+          moon fmt
+          git diff --exit-code
+
+      # 3) Public interface files (.mbti) must be committed and up to date.
+      - name: moon info && git diff --exit-code
+        run: |
+          moon info
+          git diff --exit-code
+
+      # 4) Full test suite (default backend; per-backend matrix below).
+      - name: moon test
+        run: moon test
+
+  # Build + test on every backend.
   build-test:
     name: Build & Test (${{ matrix.backend }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        backend: [wasm-gc, js, native]
+        backend: [wasm, wasm-gc, js, native]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
