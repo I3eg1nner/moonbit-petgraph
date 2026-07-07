@@ -1,5 +1,5 @@
 ///|
-/// `moonbit-community/petgraph` is a MoonBit port of the Rust
+/// `wuyaxin/petgraph` is a MoonBit port of the Rust
 /// [petgraph](https://github.com/petgraph/petgraph) library: graph data
 /// structures and algorithms.
 ///

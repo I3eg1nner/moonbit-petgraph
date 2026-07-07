@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "moonbit-community/petgraph/algo"
+package "wuyaxin/petgraph/algo"
 
 import {
-  "moonbit-community/petgraph/graph",
   "moonbitlang/core/debug",
+  "wuyaxin/petgraph/graph",
 }
 
 // Values

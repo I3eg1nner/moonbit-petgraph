@@ -1,5 +1,5 @@
 import {
-  "moonbit-community/petgraph/graph",
-  "moonbit-community/petgraph/algo",
-  "moonbit-community/petgraph/dot",
+  "wuyaxin/petgraph/graph",
+  "wuyaxin/petgraph/algo",
+  "wuyaxin/petgraph/dot",
 } for "test"

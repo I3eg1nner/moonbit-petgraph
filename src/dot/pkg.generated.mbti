@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "moonbit-community/petgraph/dot"
+package "wuyaxin/petgraph/dot"
 
 import {
-  "moonbit-community/petgraph/graph",
+  "wuyaxin/petgraph/graph",
 }
 
 // Values
