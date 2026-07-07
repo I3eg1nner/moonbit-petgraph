@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "wuyaxin/petgraph/algo"
+package "I3eg1nner/petgraph/algo"
 
 import {
+  "I3eg1nner/petgraph/graph",
   "moonbitlang/core/debug",
-  "wuyaxin/petgraph/graph",
 }
 
 // Values

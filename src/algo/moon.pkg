@@ -1,7 +1,7 @@
 import {
-  "wuyaxin/petgraph/graph",
-  "wuyaxin/petgraph/visit",
-  "wuyaxin/petgraph/unionfind",
+  "I3eg1nner/petgraph/graph",
+  "I3eg1nner/petgraph/visit",
+  "I3eg1nner/petgraph/unionfind",
   "moonbitlang/core/priority_queue",
 }
 

@@ -1,4 +1,4 @@
 import {
-  "wuyaxin/petgraph/graph",
+  "I3eg1nner/petgraph/graph",
   "moonbitlang/core/deque",
 }

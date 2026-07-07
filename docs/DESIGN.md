@@ -20,7 +20,7 @@ the design decisions taken to adapt Rust idioms to MoonBit, and the rationale be
 
 ## 2. Package architecture
 
-The module `wuyaxin/petgraph` (source dir `src/`) is split into cohesive packages:
+The module `I3eg1nner/petgraph` (source dir `src/`) is split into cohesive packages:
 
 | Package | Path | Responsibility | Depends on |
 |---------|------|----------------|------------|

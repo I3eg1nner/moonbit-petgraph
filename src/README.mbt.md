@@ -29,7 +29,7 @@ Rust→MoonBit adaptation rationale.
 This is a standard MoonBit module. Add it as a dependency of your project:
 
 ```bash
-moon add wuyaxin/petgraph
+moon add I3eg1nner/petgraph
 ```
 
 Then import the sub-packages you need in your package's `moon.pkg`:
@@ -37,9 +37,9 @@ Then import the sub-packages you need in your package's `moon.pkg`:
 ```json
 {
   "import": [
-    "wuyaxin/petgraph/graph",
-    "wuyaxin/petgraph/algo",
-    "wuyaxin/petgraph/dot"
+    "I3eg1nner/petgraph/graph",
+    "I3eg1nner/petgraph/algo",
+    "I3eg1nner/petgraph/dot"
   ]
 }
 ```

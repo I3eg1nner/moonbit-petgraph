@@ -1,5 +1,5 @@
 import {
-  "wuyaxin/petgraph/graph",
-  "wuyaxin/petgraph/algo",
-  "wuyaxin/petgraph/dot",
+  "I3eg1nner/petgraph/graph",
+  "I3eg1nner/petgraph/algo",
+  "I3eg1nner/petgraph/dot",
 } for "test"
