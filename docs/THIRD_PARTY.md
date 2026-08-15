@@ -40,22 +40,16 @@ terms as upstream, the port is license-compatible with petgraph. Both license
 texts are included at the repository root:
 [`LICENSE-MIT`](../LICENSE-MIT) and [`LICENSE-APACHE`](../LICENSE-APACHE).
 
-## 2. Redistributed agent skills (`.claude/skills/`)
+## 2. Local development tooling (not redistributed)
 
-The repository ships agent skill definitions so that contributors get the same
-MoonBit tooling guidance. These are **documentation, not part of the library**:
-nothing under `.claude/` is compiled, imported, or published to mooncakes.io.
+Development used agent tooling checked out under `.claude/` — skill definitions
+from https://github.com/moonbitlang/skills and
+https://gitlink.org.cn/MilkyNatas/osc2026-guide, plus transient git worktrees.
 
-| Path | Source | License |
-|------|--------|---------|
-| `.claude/skills/moonbit-*`, `.claude/skills/make-moonbit-c-bindings`, `.claude/skills/ocaml2moonbit-migration` | https://github.com/moonbitlang/skills | Apache-2.0 / MIT, per-skill; original `LICENSE` files retained in place |
-| `.claude/skills/osc2026-guide` | https://gitlink.org.cn/MilkyNatas/osc2026-guide | Apache-2.0; original `LICENSE` retained |
-
-Each bundled skill directory keeps its upstream `LICENSE` file unmodified. No
-skill content was altered.
-
-If you would rather not redistribute these, deleting `.claude/` has no effect
-on the build: `moon check`, `moon build` and `moon test` do not read it.
+**None of it is redistributed by this repository.** `.claude/` is gitignored, so
+no third-party skill content is tracked, published to mooncakes.io, or shipped
+to users. It is also irrelevant to the build: `moon check`, `moon build` and
+`moon test` never read it.
 
 ## 3. Test data and fixtures
 

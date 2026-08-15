@@ -7,5 +7,6 @@ target/
 *.coverage
 moonbit_coverage_*.txt
 
-# Agent worktrees (transient, created by tooling)
-.claude/worktrees/
+# Local agent tooling: skill definitions and transient worktrees.
+# Not part of the library and not redistributed — see docs/THIRD_PARTY.md.
+.claude/

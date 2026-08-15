@@ -1,6 +1,0 @@
-interface:
-  display_name: "OSC 2026 Guide"
-  short_description: "MoonBit 大赛全流程参赛指南"
-  default_prompt: "使用 $osc2026-guide 介绍一下 MoonBit国产开源生态大赛，我可以咨询哪些问题？"
-policy:
-  allow_implicit_invocation: true
