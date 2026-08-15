@@ -1,35 +1,48 @@
-# Migration TODO & Progress Tracker
+# Migration scope & progress
 
-> Living document tracking the petgraph → MoonBit migration. Updated as phases complete.
+> Living document tracking the petgraph → MoonBit migration.
 
 ## Goal
 
-Port the core of the Rust **petgraph** library to idiomatic MoonBit: a clear, tested,
+Port the Rust **petgraph** library to idiomatic MoonBit: a clear, tested,
 reproducible library with CI, README, and design/usage/test documentation.
 
-## Scope (agreed)
+## Scope
 
-- **In scope (focused core):**
-  - `graph` — adjacency-list `Graph[N, E]` (directed + undirected), `NodeId`/`EdgeId`,
-    `Direction`, add/remove/find/neighbors/edges, `from_edges`, `reverse`, `clear`.
-  - `unionfind` — `UnionFind` with union-by-rank + path compression.
-  - `visit` — `Dfs`, `Bfs`, `DfsPostOrder`, `Topo`, `depth_first_search` + `DfsEvent`.
-  - `algo` — `dijkstra`, `astar`, `bellman_ford`, `toposort`, `is_cyclic_directed`,
-    `is_cyclic_undirected`, `connected_components`, `kosaraju_scc`, `tarjan_scc`,
-    `min_spanning_tree` (Kruskal).
-  - `dot` — Graphviz DOT export.
-- **Out of scope:** StableGraph, GraphMap, CSR, MatrixGraph, max-flow, isomorphism,
-  matching, page_rank, and other advanced algorithms.
+**In scope — ported and tested**
+
+| Area | Contents |
+|---|---|
+| `graph` | adjacency-list `Graph[N, E]` (directed + undirected), `NodeId`/`EdgeId`/`EdgeRef`, `Direction`, add/remove/find/neighbours/edges, `edge_references`, `edges_connecting`, `map`, `filter_map`, `retain_nodes`, `retain_edges`, `extend_with_edges`, `into_nodes_edges`, `first_edge`/`next_edge`, `from_edges`, `reverse`, `clear` |
+| `unionfind` | `UnionFind` with union-by-rank + path compression, incl. the `try_*` family |
+| `visit` | `Dfs`, `Bfs`, `DfsPostOrder`, `Topo`, `depth_first_search` + `DfsEvent`; `Walker`/`iter`; view adapters `Reversed`, `NodeFiltered`, `EdgeFiltered`, `UndirectedAdaptor` |
+| `algo` — shortest paths | `dijkstra`, `bidirectional_dijkstra`, `astar`, `bellman_ford`, `spfa`, `find_negative_cycle`, `k_shortest_path`, `floyd_warshall`, `johnson` |
+| `algo` — order & cycles | `toposort`, `is_cyclic_directed`, `is_cyclic_undirected`, `greedy_feedback_arc_set` |
+| `algo` — connectivity | `connected_components`, `kosaraju_scc`, `tarjan_scc`, `condensation`, `articulation_points`, `bridges`, `simple_fast` (+ `Dominators`), `has_path_connecting`, `is_bipartite_undirected` |
+| `algo` — trees & flow | `min_spanning_tree` (Kruskal), `min_spanning_tree_prim` (Prim), `steiner_tree`, `ford_fulkerson`, `dinics` |
+| `algo` — combinatorial | `greedy_matching`, `maximum_matching` (Gabow's blossom), `maximal_cliques`, `dsatur_coloring`, `all_simple_paths`, `all_simple_paths_multi`, `dag_to_toposorted_adjacency_list`, `dag_transitive_reduction_closure` |
+| `dot` | Graphviz DOT export with the five upstream `Config` flags |
+
+**Out of scope**
+
+- Alternative representations: `StableGraph`, `GraphMap`, `MatrixGraph`, `Csr`,
+  `adj::List`, and the `Acyclic` / `Frozen` wrappers.
+- Parsers: petgraph's DOT parser and graph6 encoder/decoder. This port emits
+  DOT but does not read it.
+- `serde` serialization, `quickcheck` integration, the `Ix` memory-size generic.
+- Isomorphism (VF2), `page_rank`, and `parallel_johnson` (no threads).
 
 ## Design decisions
 
 - Drop Rust's `Ix`/`Ty` type params: index type fixed to `Int`; directedness is a
   `Directedness` enum field on the graph (not a marker trait).
-- `NodeId`/`EdgeId` are wrapper structs (type safety) deriving `Eq, Hash, Compare, Show`.
-- Two light traits only: `NeighborSource` (graph → neighbors, used by traversals &
-  structural algos) and `Measure` (weight arithmetic for shortest-path/MST).
+- `NodeId`/`EdgeId` are wrapper structs (type safety) deriving `Eq, Hash, Compare, Debug`.
+- Two trait families instead of petgraph's 18-trait hierarchy:
+  `NeighborSource` (graph → neighbours; `pub(open)` so other packages and
+  downstream users can implement it) and `Measure` / `BoundedMeasure` (weight
+  arithmetic).
 - Algorithms take a concrete `Graph[N, E]` + an `edge_cost` closure where weights matter.
-- Priority queue: use `@priority_queue` from core with a reversed-`Compare` `MinScored`.
+- Priority queue: `@priority_queue` from core with a reversed-`Compare` `MinScored`.
 
 ## Package layout & dependency graph
 
@@ -48,40 +61,58 @@ unionfind  (leaf)        graph (leaf)
 ## Phases
 
 - [x] **P0 Scaffold** — module + package configs, CI skeleton, docs skeleton.
-- [x] **P1a graph** — core types, mutators (incl. swap-remove fix-ups), neighbors, builders, `NeighborSource`. **34 tests pass.**
-- [x] **P1b unionfind** — full port + tests. **14 tests pass.**
-- [x] **P2a visit** — VisitMap + Dfs/Bfs/DfsPostOrder/Topo + depth_first_search. **11 tests.**
-- [x] **P2b dot** — DOT renderer + escaping + snapshot tests. **8 tests.**
-- [x] **P3 algo** — measure trait + dijkstra/astar/bellman_ford, toposort/cycles/components, kosaraju & tarjan SCC, MST. **19 tests** (incl. cross-checks).
-- [x] **P4 integration** — `cmd/main` demo, doc-tested `README.mbt.md` (3 tests), design/usage/test docs, GitHub Actions CI, `.mbti` frozen, fmt + multi-backend green.
+- [x] **P1a graph** — core types, mutators (incl. swap-remove fix-ups), neighbours, builders, `NeighborSource`.
+- [x] **P1b unionfind** — full port + tests.
+- [x] **P2a visit** — VisitMap + Dfs/Bfs/DfsPostOrder/Topo + depth_first_search.
+- [x] **P2b dot** — DOT renderer + escaping + snapshot tests.
+- [x] **P3 algo (core)** — measure trait + dijkstra/astar/bellman_ford, toposort/cycles/components, Kosaraju & Tarjan SCC, Kruskal MST.
+- [x] **P4 integration** — `cmd/main` demo, doc-tested `README.mbt.md`, design/usage/test docs, GitHub Actions CI, `.mbti` frozen, fmt + multi-backend green.
+- [x] **P5 test fidelity** — ported petgraph's own in-scope test cases (`*_ported_test.mbt`, original Rust names preserved), with a documented out-of-scope skip list (测试文档 §9).
+- [x] **P6 breadth** — toolchain upgrade to moonc 0.10.7; `BoundedMeasure`; the
+      remaining shortest-path, connectivity, flow, tree and combinatorial
+      algorithms; the `Graph` transform/edge-reference API; the `@visit` view
+      adapters. Two pre-existing correctness defects found and fixed in the
+      process (see below).
 
-- [x] **P5 test fidelity** — ported 58 of petgraph's own in-scope test cases (`*_ported_test.mbt`, original Rust names preserved), with a documented out-of-scope skip list (测试文档 §9). No implementation bugs surfaced.
+**Current state: 328 tests passing on all four backends — wasm / wasm-gc / js /
+native. `moon check --deny-warn --target all` clean, `moon test --deny-warn`
+clean, `moon fmt` and `moon info` idempotent. ~7.1k lines of implementation and
+~8.2k lines of tests.**
 
-**Result: 145 tests passing on all four backends — wasm/wasm-gc/js/native (87 self-authored, incl. doc-test examples on every public entry point, + 58 ported from petgraph); `moon check --deny-warn --target all` clean; ~90% line coverage (865/955).**
+## Defects found and fixed
 
-> **Toolchain convention (enforced):** This MoonBit build deprecates `Show` for debugging.
-> Use `derive(Debug)` (not `Show`) on custom types and `debug_inspect(...)` (not `inspect`) in
-> tests. `moon fmt` migrates configs to the new `moon.mod`/`moon.pkg` format (no `warn-list`).
-- [ ] **P3 algo** — measure trait, then dijkstra→astar→bellman_ford, toposort/cycles/components, scc, MST.
-- [ ] **P4 integration** — prelude re-exports, cmd/main demo, README.mbt.md, design/usage/test docs, CI green, coverage.
+1. **Undirected traversal in `dijkstra` / `astar` / `bellman_ford`.** All three
+   walked `edges_directed(node, Outgoing)` and then read the edge's stored
+   `dst` as the neighbour. An undirected edge stored as `(other, node)`
+   therefore sent the search back into `node`, so reachable nodes were silently
+   reported unreachable. Fixed by walking `Graph::edges(node)`, which
+   normalizes endpoints. Regression suite:
+   `src/algo/undirected_regression_test.mbt`.
+2. **`dinics` non-termination.** Looped forever when `source == destination`
+   (upstream petgraph has the same defect). Now returns zero flow. Regression
+   suite: `src/algo/flow_degenerate_test.mbt`.
 
-## Key risks (carry forward)
+## Known follow-ups
 
-1. **swap_remove index invalidation** in `remove_node`/`remove_edge` — port `change_edge_links` literally; guard with white-box edge-list invariant tests.
-2. **Priority queue direction** — `@priority_queue` is max-heap by `Compare`; `MinScored` must reverse.
-3. **Neighbor ordering** is reverse-insertion (intrusive prepend) — match petgraph's expected orders in golden tests or sort before comparing.
-4. **Self-loop double-count** in undirected neighbor walk — keep the `skip_start` guard.
-5. **Numeric generics** — enumerate `impl Measure for Int/Double`; no "any number" trait.
+- Consolidate three inlined shortest-path routines (`johnson`,
+  `steiner_tree`'s `steiner_shortest_paths`, `kosaraju_scc`'s manual reverse
+  pass) — see `DESIGN.md` §7.
+- Expose `floyd_warshall_path` (the predecessor-matrix variant) so
+  `steiner_tree` can drop its private copy.
+- Unify the two edge-list walkers in `neighbors.mbt` and `edge_refs.mbt` behind
+  one private routine.
+- `Measure` / `BoundedMeasure` are instantiated for `Int` and `Double` only.
 
 ## Validation commands
 
 ```
-moon fmt --check
-moon check --target all
-moon build
-moon test
-moon coverage analyze   # coverage report
-moon info               # regenerate .mbti
+moon check --target all --deny-warn
+moon fmt && git diff --exit-code
+moon info && git diff --exit-code
+moon test --deny-warn
+moon test --target wasm|wasm-gc|js|native
+moon run src/cmd/main
+moon test --enable-coverage && moon coverage report -f summary
 ```
 
 ## Source-of-truth mapping (Rust → MoonBit)
@@ -90,6 +121,6 @@ moon info               # regenerate .mbti
 |-----------|-----------------|
 | `crates/petgraph/src/graph_impl/mod.rs` | `src/graph/` |
 | `crates/petgraph/src/unionfind.rs` | `src/unionfind/` |
-| `crates/petgraph/src/visit/traversal.rs`, `dfsvisit.rs` | `src/visit/` |
+| `crates/petgraph/src/visit/traversal.rs`, `dfsvisit.rs`, `reversed.rs`, `filter.rs`, `undirected_adaptor.rs` | `src/visit/` |
 | `crates/petgraph/src/algo/*.rs` | `src/algo/` |
 | `crates/petgraph/src/dot/mod.rs` | `src/dot/` |

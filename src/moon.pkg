@@ -1,5 +1,6 @@
 import {
   "V1GreenSummer/petgraph/graph",
   "V1GreenSummer/petgraph/algo",
+  "V1GreenSummer/petgraph/visit",
   "V1GreenSummer/petgraph/dot",
 } for "test"

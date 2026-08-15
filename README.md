@@ -8,18 +8,27 @@ A MoonBit port of the Rust [petgraph](https://github.com/petgraph/petgraph)
 library — fast, flexible **graph data structures and algorithms**, supporting
 both directed and undirected graphs with arbitrary node and edge data.
 
-This port focuses on the most-used core of petgraph:
-
 - **`@graph`** — an adjacency-list `Graph[N, E]` (directed & undirected) with
-  typed `NodeId`/`EdgeId`, neighbour iteration, edge lookup, and stable
-  swap-remove semantics.
+  typed `NodeId`/`EdgeId`, neighbour and edge-reference iteration, edge lookup,
+  `map` / `filter_map` / `retain_*` transforms, and stable swap-remove semantics.
 - **`@unionfind`** — a disjoint-set structure (union-by-rank + path compression).
-- **`@visit`** — traversals `Dfs`, `Bfs`, `DfsPostOrder`, `Topo`, and an
-  event-driven `depth_first_search`.
-- **`@algo`** — `dijkstra`, `astar`, `bellman_ford`, `toposort`, cycle
-  detection, `connected_components`, strongly-connected components
-  (`kosaraju_scc` / `tarjan_scc`), and `min_spanning_tree` (Kruskal).
+- **`@visit`** — traversals `Dfs`, `Bfs`, `DfsPostOrder`, `Topo`, an
+  event-driven `depth_first_search`, and the view adapters `Reversed`,
+  `NodeFiltered`, `EdgeFiltered` and `UndirectedAdaptor` that compose with all
+  of them.
+- **`@algo`** — 35 algorithms: shortest paths (Dijkstra, A\*, Bellman–Ford,
+  Floyd–Warshall, Johnson, SPFA, bidirectional Dijkstra, k-shortest-path),
+  connectivity (SCC, articulation points, bridges, dominators, condensation,
+  bipartiteness), spanning and Steiner trees, maximum flow (Ford–Fulkerson,
+  Dinic's), matching (greedy and Gabow's blossom algorithm), colouring, maximal
+  cliques, simple-path enumeration, feedback arc sets and DAG transitive
+  reduction.
 - **`@dot`** — Graphviz **DOT** export for visualization.
+
+Not ported: petgraph's alternative graph representations (`StableGraph`,
+`GraphMap`, `MatrixGraph`, `Csr`, `adj::List`), its serde support, and its
+graph6 / DOT *parsers*. See [`docs/TODO.md`](docs/TODO.md) for the current
+boundary.
 
 ## Project goals
 
@@ -149,6 +158,62 @@ test "traversal and cycles" {
 }
 ```
 
+Compute a maximum flow:
+
+```mbt check
+///|
+test "maximum flow" {
+  // A classic two-path network from source 0 to sink 3.
+  //
+  //        1
+  //     3/   \2
+  //   0        3
+  //     2\   /3
+  //        2
+  let g : @graph.Graph[Int, Int] = @graph.Graph::new()
+  for i in 0..<4 {
+    let _ = g.add_node(i)
+
+  }
+  let n = i => @graph.NodeId::new(i)
+  let _ = g.add_edge(n(0), n(1), 3)
+  let _ = g.add_edge(n(0), n(2), 2)
+  let _ = g.add_edge(n(1), n(3), 2)
+  let _ = g.add_edge(n(2), n(3), 3)
+  let cost = e => g.edge_weight(e).unwrap()
+
+  // Both algorithms agree on the value; the bottleneck is 2 + 2 = 4.
+  let (dinics_flow, _) = @algo.dinics(g, source=n(0), destination=n(3), edge_cost=cost)
+  let (ff_flow, _) = @algo.ford_fulkerson(
+    g, source=n(0), destination=n(3), edge_cost=cost,
+  )
+  debug_inspect(dinics_flow, content="4")
+  debug_inspect(ff_flow, content="4")
+}
+```
+
+Traverse a graph through a view adapter — `Reversed` follows edges backwards
+without building a reversed copy, and works with every traversal because it
+implements the same `NeighborSource` trait a `Graph` does:
+
+```mbt check
+///|
+test "reversed view" {
+  // A directed path 0 -> 1 -> 2.
+  let g : @graph.Graph[Int, Unit] = @graph.from_edges([(0, 1), (1, 2)])
+  let start = @graph.NodeId::new(2)
+
+  // Forwards from node 2 there is nowhere to go.
+  let forward = @visit.Dfs::new(g, start).iter(g).collect()
+  debug_inspect(forward.map(x => x.index()), content="[2]")
+
+  // Reversed, node 2 reaches the whole path.
+  let rev = @visit.Reversed(g)
+  let backward = @visit.Dfs::new(rev, start).iter(rev).collect()
+  debug_inspect(backward.map(x => x.index()), content="[2, 1, 0]")
+}
+```
+
 ## Supported API
 
 The library is split into focused sub-packages; import only what you need.
@@ -170,10 +235,23 @@ or an `Option` result, and `raise` a checked error.
   `find_edge(a, b) -> EdgeId?`, `find_edge_undirected`, `contains_edge`.
 - **Iterate** (each returns a fresh, lazy single-use `Iter`):
   `node_ids() -> Iter[NodeId]`, `edge_ids() -> Iter[EdgeId]`,
+  `node_weights() -> Iter[N]`, `edge_weights() -> Iter[E]`,
   `neighbors(n)` / `neighbors_directed(n, dir)` / `neighbors_undirected(n) -> Iter[NodeId]`,
   `edges_directed(n, dir) -> Iter[EdgeId]`, `externals(dir) -> Iter[NodeId]`
   (sources / sinks).
-- **Types**: `NodeId` / `EdgeId` (`::new`, `::index`), `Direction`
+- **Edge references**: `edges(n) -> Iter[EdgeRef[E]]` (endpoints normalized so
+  `source` is always `n`, even for undirected edges — this is what makes the
+  weighted algorithms correct on undirected graphs),
+  `edge_references() -> Iter[EdgeRef[E]]` (all edges, endpoints as stored),
+  `edges_connecting(a, b) -> Iter[EdgeId]`.
+- **Transform**: `map(node_map, edge_map)` / `filter_map(node_map, edge_map)`
+  to build a new graph with different weight types, `retain_nodes(pred)` /
+  `retain_edges(pred)` to filter in place, `extend_with_edges(pairs)`,
+  `into_nodes_edges()`.
+- **Low-level adjacency walk**: `first_edge(n, dir) -> EdgeId?`,
+  `next_edge(e, dir) -> EdgeId?`.
+- **Types**: `NodeId` / `EdgeId` (`::new`, `::index`), `EdgeRef[E]`
+  (`id` / `source` / `target` / `weight`), `Direction`
   (`Outgoing` / `Incoming`, `.opposite()`), `Directedness`, and the
   `NeighborSource` trait that the traversals and algorithms are generic over.
 
@@ -188,24 +266,61 @@ or an `Option` result, and `raise` a checked error.
 
 - Walkers `Dfs`, `Bfs`, `DfsPostOrder`, `Topo`: `::new(graph[, start])`, then
   `.next(graph) -> NodeId?`; `reset` / `move_to` to restart. Generic over any
-  `NeighborSource`.
+  `NeighborSource`. Each also has `.iter(graph) -> Iter[NodeId]` and
+  `.walker(graph) -> Walker` if you would rather drive it as an iterator than
+  with a manual `next` loop.
 - `depth_first_search(graph, starts, visitor)` — event-driven DFS; `visitor`
   receives a `DfsEvent` (`Discover` / `TreeEdge` / `BackEdge` /
   `CrossForwardEdge` / `Finish`) and returns a `Control`
   (`Continue` / `Prune` / `Break`).
+- **View adapters**, each implementing `NeighborSource` so every traversal and
+  every `NeighborSource`-generic algorithm works over them unchanged, and they
+  compose with each other:
+  - `Reversed(g)` — swaps `Outgoing` / `Incoming`.
+  - `NodeFiltered::from_fn(g, pred)` — hides nodes failing `pred`.
+  - `EdgeFiltered::from_fn(g, pred)` — hides edges failing `pred`; concrete over
+    `Graph[N, E]`, since edge identity is needed.
+  - `UndirectedAdaptor(g)` — presents a directed graph as undirected.
 - `VisitMap` — a reusable visited-set keyed by `NodeId`.
 
 ### `@algo` — algorithms
 
-- **Shortest paths**: `dijkstra(g, start~, goal?, edge_cost~) -> Map[NodeId, K]`,
+- **Single-source shortest paths**:
+  `dijkstra(g, start~, goal?, edge_cost~) -> Map[NodeId, K]`,
   `astar(g, start~, is_goal~, edge_cost~, estimate_cost~) -> (K, Array[NodeId])?`,
-  `bellman_ford(g, source~, edge_cost~) -> BellmanFordPaths[K] raise NegativeCycle`.
+  `bellman_ford(g, source~, edge_cost~) -> BellmanFordPaths[K] raise NegativeCycle`,
+  `spfa` (queue-based Bellman–Ford),
+  `bidirectional_dijkstra`, `k_shortest_path`,
+  `find_negative_cycle(g, source~, edge_cost~) -> Array[NodeId]?`.
+- **All-pairs shortest paths**: `floyd_warshall`, `johnson` (Bellman–Ford
+  potentials + per-source Dijkstra, so negative edges are allowed).
 - **Order & cycles**: `toposort(g) -> Array[NodeId] raise Cycle`,
-  `is_cyclic_directed(g)`, `is_cyclic_undirected(g)`.
-- **Components**: `connected_components(g) -> Int`,
-  `kosaraju_scc(g)` / `tarjan_scc(g) -> Array[Array[NodeId]]`.
-- **Spanning tree**: `min_spanning_tree(g, edge_cost~) -> Array[EdgeId]` (Kruskal).
-- Edge costs are generic over the `Measure` trait (provided for `Int` and `Double`).
+  `is_cyclic_directed(g)`, `is_cyclic_undirected(g)`,
+  `greedy_feedback_arc_set(g) -> Array[EdgeId]`.
+- **Connectivity**: `connected_components(g) -> Int`,
+  `kosaraju_scc(g)` / `tarjan_scc(g) -> Array[Array[NodeId]]`,
+  `condensation(g, make_acyclic)`, `articulation_points(g)`, `bridges(g)`,
+  `has_path_connecting(g, a, b, space?)`, `is_bipartite_undirected(g, start)`,
+  `simple_fast(g, root) -> Dominators` (Cooper–Harvey–Kennedy dominator tree).
+- **Trees**: `min_spanning_tree(g, edge_cost~) -> Array[EdgeId]` (Kruskal),
+  `min_spanning_tree_prim(g, edge_cost~)` (Prim),
+  `steiner_tree(g, terminals, edge_cost~)` (Kou's approximation).
+- **Maximum flow**: `ford_fulkerson(g, source~, destination~, edge_cost~)` and
+  `dinics(...)`, each returning `(max_flow, per_edge_flows)`.
+- **Matching**: `greedy_matching(g)` and `maximum_matching(g)` (Gabow's blossom
+  algorithm, correct on general non-bipartite graphs), returning a `Matching`
+  with `mate` / `contains_edge` / `is_perfect` / `edges` / `nodes`.
+- **Enumeration & colouring**: `maximal_cliques(g)` (Bron–Kerbosch with
+  pivoting), `all_simple_paths` / `all_simple_paths_multi` (lazy),
+  `dsatur_coloring(g) -> (Map[NodeId, Int], Int)`.
+- **DAG utilities**: `dag_to_toposorted_adjacency_list`,
+  `dag_transitive_reduction_closure`.
+- Edge costs are generic over the `Measure` trait (`zero` / `add` / `compare`).
+  Algorithms that need a saturating "unreachable" value, overflow-checked
+  relaxation or subtraction — Floyd–Warshall, Johnson, both max-flow
+  algorithms, Steiner — use `BoundedMeasure : Measure`
+  (`max_value` / `checked_add` / `sub`). Both traits are implemented for `Int`
+  and `Double`.
 
 ### `@dot` — Graphviz export
 
@@ -226,7 +341,7 @@ or an `Option` result, and `raise` a checked error.
 
 ## Coming from Rust petgraph
 
-`petgraph_mbt` mirrors petgraph's API closely — most names are identical, so
+`This port` mirrors petgraph's API closely — most names are identical, so
 petgraph code reads almost unchanged. A few things were deliberately adapted to
 MoonBit idioms.
 
@@ -238,17 +353,25 @@ MoonBit idioms.
   `find_edge_undirected` / `contains_edge` / `node_count` / `edge_count` /
   `is_directed` / `externals` / `reverse`; `neighbors` / `neighbors_directed` /
   `neighbors_undirected`.
-- `@algo`: `dijkstra`, `astar`, `bellman_ford`, `toposort`, `is_cyclic_directed`,
-  `is_cyclic_undirected`, `connected_components`, `kosaraju_scc`, `tarjan_scc`,
-  `min_spanning_tree`.
+- `@algo`: `dijkstra`, `astar`, `bellman_ford`, `spfa`, `floyd_warshall`,
+  `johnson`, `k_shortest_path`, `bidirectional_dijkstra`, `find_negative_cycle`,
+  `toposort`, `is_cyclic_directed`, `is_cyclic_undirected`,
+  `greedy_feedback_arc_set`, `connected_components`, `kosaraju_scc`,
+  `tarjan_scc`, `condensation`, `articulation_points`, `bridges`, `simple_fast`,
+  `has_path_connecting`, `is_bipartite_undirected`, `min_spanning_tree`,
+  `min_spanning_tree_prim`, `steiner_tree`, `ford_fulkerson`, `dinics`,
+  `greedy_matching`, `maximum_matching`, `maximal_cliques`, `dsatur_coloring`,
+  `all_simple_paths`, `all_simple_paths_multi`,
+  `dag_transitive_reduction_closure`.
 - `@visit`: `Dfs`, `Bfs`, `DfsPostOrder`, `Topo`, `depth_first_search`,
-  `DfsEvent`, `Control`, `Direction::{Outgoing, Incoming}`.
+  `DfsEvent`, `Control`, `Reversed`, `NodeFiltered`, `EdgeFiltered`,
+  `Direction::{Outgoing, Incoming}`.
 - `@unionfind`: `UnionFind` — `union` / `find` / `find_mut` / `new_set` /
   `into_labeling`.
 
 **Deliberate differences**
 
-| Rust petgraph | petgraph_mbt | why |
+| Rust petgraph | This port | why |
 |---|---|---|
 | `NodeIndex` / `EdgeIndex` | `NodeId` / `EdgeId` (`.index()` kept) | shorter; not a Rust index newtype |
 | `node_indices()` / `edge_indices()` | `node_ids()` / `edge_ids()` | follows the `NodeId` rename |
@@ -256,13 +379,20 @@ MoonBit idioms.
 | `toposort -> Result<_, Cycle>` | `toposort(…) raise Cycle` | MoonBit error idiom — handle with `try … catch` |
 | `bellman_ford -> Result<_, NegativeCycle>` | `… raise NegativeCycle` | same |
 | `Ty` type parameter (`Directed` / `Undirected`) | runtime `new` vs `new_undirected` | no const-generic directedness |
-| `FloatMeasure` / numeric bounds | `Measure` trait (`Int`, `Double`) | hand-written numeric trait |
+| `Measure` / `FloatMeasure` / `PositiveMeasure` / `BoundedMeasure` | `Measure` and `BoundedMeasure` (`Int`, `Double`) | no numeric-tower traits to build on; four upstream bounds collapse into two |
+| `GraphBase` / `IntoNeighbors` / `Visitable` / … (18 traits) | one `pub(open) trait NeighborSource` | MoonBit has no associated types or GATs; one trait covers what the traversals actually need |
+| `EdgeReference` (borrowed) | `EdgeRef[E]` (owning struct, `derive(Debug)`) | no lifetimes |
+| `min_spanning_tree -> Iterator<Element>` | `-> Array[EdgeId]` | ids are cheap here; caller reads weights from the graph |
+| `steiner_tree -> StableGraph` | `-> Array[EdgeId]` | no `StableGraph` in this port |
+| `dinics` hangs when `source == destination` | returns zero flow | a non-terminating call is worse than a divergence |
 
 ## Documentation
 
 - [`docs/DESIGN.md`](docs/DESIGN.md) — architecture & design decisions.
 - [`docs/TESTING.md`](docs/TESTING.md) — how the library is tested.
 - [`docs/TODO.md`](docs/TODO.md) — scope and migration progress.
+- [`docs/THIRD_PARTY.md`](docs/THIRD_PARTY.md) — upstream petgraph attribution,
+  licenses, and the scope of what was referenced.
 
 中文文档(Chinese):
 
