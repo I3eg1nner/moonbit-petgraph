@@ -145,8 +145,8 @@ test "scc (kosaraju)" {
     (7, 4),
     (4, 1),
   ])
-  guard hr.find_edge(@graph.NodeId::new(6), @graph.NodeId::new(8)) is Some(ed)
-  guard hr.remove_edge(ed) is Some(_)
+  guard! hr.find_edge(@graph.NodeId::new(6), @graph.NodeId::new(8)) is Some(ed)
+  guard! hr.remove_edge(ed) is Some(_)
   json_inspect(norm_sccs(@algo.kosaraju_scc(hr), order_matters=false), content=[
     [0, 3, 6],
     [1, 2, 4, 5, 7, 8],
@@ -213,8 +213,8 @@ test "tarjan_scc" {
     (7, 4),
     (4, 1),
   ])
-  guard hr.find_edge(@graph.NodeId::new(6), @graph.NodeId::new(8)) is Some(ed)
-  guard hr.remove_edge(ed) is Some(_)
+  guard! hr.find_edge(@graph.NodeId::new(6), @graph.NodeId::new(8)) is Some(ed)
+  guard! hr.remove_edge(ed) is Some(_)
   json_inspect(norm_sccs(@algo.tarjan_scc(hr), order_matters=false), content=[
     [0, 3, 6],
     [1, 2, 4, 5, 7, 8],
@@ -255,7 +255,7 @@ fn assert_topo_order(
     pos[n.index()] = i
   }
   for e in g.edge_ids() {
-    guard g.edge_endpoints(e) is Some((s, t))
+    guard! g.edge_endpoints(e) is Some((s, t))
     assert_eq(pos[s.index()] < pos[t.index()], true)
   }
 }

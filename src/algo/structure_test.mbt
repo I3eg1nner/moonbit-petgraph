@@ -44,7 +44,7 @@ test "toposort on a DAG: each edge goes source-before-target" {
   }
   json_inspect([ for n in order => n.index() ], content=[0, 1, 2, 3, 4])
   for e in g.edge_ids() {
-    guard g.edge_endpoints(e) is Some((s, t))
+    guard! g.edge_endpoints(e) is Some((s, t))
     assert_eq(pos[s.index()] < pos[t.index()], true)
   }
 }

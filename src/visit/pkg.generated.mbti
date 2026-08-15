@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "I3eg1nner/petgraph/visit"
+package "V1GreenSummer/petgraph/visit"
 
 import {
-  "I3eg1nner/petgraph/graph",
+  "V1GreenSummer/petgraph/graph",
   "moonbitlang/core/debug",
   "moonbitlang/core/deque",
 }
@@ -75,4 +75,3 @@ pub fn VisitMap::visit(Self, @graph.NodeId) -> Bool
 // Type aliases
 
 // Traits
-

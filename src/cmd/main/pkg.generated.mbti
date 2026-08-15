@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "I3eg1nner/petgraph/cmd/main"
+package "V1GreenSummer/petgraph/cmd/main"
 
 // Values
 
@@ -10,4 +10,3 @@ package "I3eg1nner/petgraph/cmd/main"
 // Type aliases
 
 // Traits
-

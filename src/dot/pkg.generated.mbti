@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "I3eg1nner/petgraph/dot"
+package "V1GreenSummer/petgraph/dot"
 
 import {
-  "I3eg1nner/petgraph/graph",
+  "V1GreenSummer/petgraph/graph",
 }
 
 // Values
@@ -22,4 +22,3 @@ pub(all) enum DotConfig {
 // Type aliases
 
 // Traits
-

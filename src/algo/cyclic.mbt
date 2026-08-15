@@ -60,7 +60,7 @@ pub fn[N, E] connected_components(g : @graph.Graph[N, E]) -> Int {
     node_sets.union(a.index(), b.index()) |> ignore
   }
   let labels = node_sets.into_labeling()
-  let roots : Map[Int, Unit] = {}
+  let roots : Map[Int, Unit] = Map([])
   for label in labels {
     roots[label] = ()
   }

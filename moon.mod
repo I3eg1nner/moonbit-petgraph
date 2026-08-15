@@ -1,4 +1,4 @@
-name = "I3eg1nner/petgraph"
+name = "V1GreenSummer/petgraph"
 
 version = "0.1.0"
 
@@ -8,7 +8,7 @@ readme = "README.md"
 
 description = "A MoonBit port of petgraph: graph data structures and algorithms."
 
-repository = "https://github.com/I3eg1nner/moonbit-petgraph"
+repository = "https://github.com/V1GreenSummer/moonbit-petgraph"
 
 keywords = [ "graph", "algorithms", "data-structures", "petgraph" ]
 

@@ -15,7 +15,7 @@
 /// Count the number of distinct representatives across `0..n` (ported stand-in
 /// for petgraph's `(0..n).map(|i| u.find(i)).collect::<HashSet<_>>().len()`).
 fn ported_distinct_sets(u : @unionfind.UnionFind, n : Int) -> Int {
-  let seen : Map[Int, Unit] = {}
+  let seen : Map[Int, Unit] = Map([])
   for i in 0..<n {
     seen[u.find(i)] = ()
   }

@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "I3eg1nner/petgraph/graph"
+package "V1GreenSummer/petgraph/graph"
 
 import {
   "moonbitlang/core/debug",
@@ -73,4 +73,3 @@ pub trait NeighborSource {
   fn node_ids(Self) -> Iter[NodeId]
   fn neighbors_directed(Self, NodeId, Direction) -> Iter[NodeId]
 }
-

@@ -1,6 +1,6 @@
 # petgraph for MoonBit
 
-[![CI](https://github.com/I3eg1nner/moonbit-petgraph/actions/workflows/ci.yml/badge.svg)](https://github.com/I3eg1nner/moonbit-petgraph/actions/workflows/ci.yml)
+[![CI](https://github.com/V1GreenSummer/moonbit-petgraph/actions/workflows/ci.yml/badge.svg)](https://github.com/V1GreenSummer/moonbit-petgraph/actions/workflows/ci.yml)
 
 **English** | [中文](README.zh.md)
 
@@ -33,7 +33,7 @@ Rust→MoonBit adaptation rationale.
 This is a standard MoonBit module. Add it as a dependency of your project:
 
 ```bash
-moon add I3eg1nner/petgraph
+moon add V1GreenSummer/petgraph
 ```
 
 Then import the sub-packages you need in your package's `moon.pkg`:
@@ -41,9 +41,9 @@ Then import the sub-packages you need in your package's `moon.pkg`:
 ```json
 {
   "import": [
-    "I3eg1nner/petgraph/graph",
-    "I3eg1nner/petgraph/algo",
-    "I3eg1nner/petgraph/dot"
+    "V1GreenSummer/petgraph/graph",
+    "V1GreenSummer/petgraph/algo",
+    "V1GreenSummer/petgraph/dot"
   ]
 }
 ```
@@ -51,7 +51,7 @@ Then import the sub-packages you need in your package's `moon.pkg`:
 To build this repository from source:
 
 ```bash
-git clone https://github.com/I3eg1nner/moonbit-petgraph.git && cd moonbit-petgraph
+git clone https://github.com/V1GreenSummer/moonbit-petgraph.git && cd moonbit-petgraph
 moon check        # type-check
 moon test         # run the test suite
 moon run src/cmd/main   # run the demo

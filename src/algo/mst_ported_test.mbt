@@ -17,7 +17,7 @@ fn mst_pairs(
 ) -> Array[(Int, Int)] {
   let out : Array[(Int, Int)] = []
   for e in mst {
-    guard g.edge_endpoints(e) is Some((s, t))
+    guard! g.edge_endpoints(e) is Some((s, t))
     let a = s.index()
     let b = t.index()
     if a < b {

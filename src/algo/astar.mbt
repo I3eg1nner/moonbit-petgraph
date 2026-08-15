@@ -56,9 +56,9 @@ pub fn[N, E, K : Measure] astar(
   let visit_next : @priority_queue.PriorityQueue[MinScored[K, @graph.NodeId]] = PriorityQueue([],
   )
   // node -> (f, h, g)
-  let scores : Map[@graph.NodeId, (K, K, K)] = {}
+  let scores : Map[@graph.NodeId, (K, K, K)] = Map([])
   // search tree: node -> predecessor
-  let came_from : Map[@graph.NodeId, @graph.NodeId] = {}
+  let came_from : Map[@graph.NodeId, @graph.NodeId] = Map([])
   let zero = K::zero()
   let h0 = estimate_cost(start)
   scores[start] = (zero.add(h0), h0, zero)

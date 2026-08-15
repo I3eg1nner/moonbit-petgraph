@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "I3eg1nner/petgraph/unionfind"
+package "V1GreenSummer/petgraph/unionfind"
 
 // Values
 
@@ -27,4 +27,3 @@ pub fn UnionFind::union(Self, Int, Int) -> Bool
 // Type aliases
 
 // Traits
-

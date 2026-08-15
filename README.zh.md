@@ -1,6 +1,6 @@
 # petgraph for MoonBit
 
-[![CI](https://github.com/I3eg1nner/moonbit-petgraph/actions/workflows/ci.yml/badge.svg)](https://github.com/I3eg1nner/moonbit-petgraph/actions/workflows/ci.yml)
+[![CI](https://github.com/V1GreenSummer/moonbit-petgraph/actions/workflows/ci.yml/badge.svg)](https://github.com/V1GreenSummer/moonbit-petgraph/actions/workflows/ci.yml)
 
 [English](README.md) | **中文**
 
@@ -30,7 +30,7 @@ Rust [petgraph](https://github.com/petgraph/petgraph) 库的 MoonBit 移植—�
 这是一个标准的 MoonBit 模块。把它作为依赖加入你的项目:
 
 ```bash
-moon add I3eg1nner/petgraph
+moon add V1GreenSummer/petgraph
 ```
 
 然后在你所在包的 `moon.pkg` 里按需导入子包:
@@ -38,9 +38,9 @@ moon add I3eg1nner/petgraph
 ```json
 {
   "import": [
-    "I3eg1nner/petgraph/graph",
-    "I3eg1nner/petgraph/algo",
-    "I3eg1nner/petgraph/dot"
+    "V1GreenSummer/petgraph/graph",
+    "V1GreenSummer/petgraph/algo",
+    "V1GreenSummer/petgraph/dot"
   ]
 }
 ```
@@ -48,7 +48,7 @@ moon add I3eg1nner/petgraph
 从源码构建本仓库:
 
 ```bash
-git clone https://github.com/I3eg1nner/moonbit-petgraph.git && cd moonbit-petgraph
+git clone https://github.com/V1GreenSummer/moonbit-petgraph.git && cd moonbit-petgraph
 moon check        # 类型检查
 moon test         # 运行测试套件
 moon run src/cmd/main   # 运行演示

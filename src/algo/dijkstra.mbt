@@ -21,7 +21,7 @@ pub fn[N, E, K : Measure] dijkstra(
   edge_cost~ : (@graph.EdgeId) -> K,
 ) -> Map[@graph.NodeId, K] {
   let visited = @visit.VisitMap::new(g.node_count())
-  let scores : Map[@graph.NodeId, K] = {}
+  let scores : Map[@graph.NodeId, K] = Map([])
   let visit_next : @priority_queue.PriorityQueue[MinScored[K, @graph.NodeId]] = PriorityQueue([],
   )
   let zero = K::zero()

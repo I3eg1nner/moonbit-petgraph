@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "I3eg1nner/petgraph/algo"
+package "V1GreenSummer/petgraph/algo"
 
 import {
-  "I3eg1nner/petgraph/graph",
+  "V1GreenSummer/petgraph/graph",
   "moonbitlang/core/debug",
 }
 
@@ -47,6 +47,14 @@ pub impl[K : Measure, T] Eq for MinScored[K, T]
 // Type aliases
 
 // Traits
+pub trait BoundedMeasure : Measure {
+  fn max_value() -> Self
+  fn checked_add(Self, Self) -> Self?
+  fn sub(Self, Self) -> Self
+}
+pub impl BoundedMeasure for Int
+pub impl BoundedMeasure for Double
+
 pub trait Measure {
   fn zero() -> Self
   fn add(Self, Self) -> Self
@@ -54,4 +62,3 @@ pub trait Measure {
 }
 pub impl Measure for Int
 pub impl Measure for Double
-
