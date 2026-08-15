@@ -26,6 +26,12 @@
 /// The semantic version of this library.
 ///
 /// Kept in sync with the `version` field of `moon.mod`.
+///
+/// ```mbt check
+/// test {
+///   inspect(@petgraph.version(), content="0.2.0")
+/// }
+/// ```
 pub fn version() -> String {
   "0.2.0"
 }
