@@ -215,6 +215,14 @@ pub fn[N, E, K : BoundedMeasure] dinics(
 ) -> (K, Array[K]) {
   let mut max_flow = Measure::zero()
   let flows : Array[K] = Array::make(g.edge_count(), Measure::zero())
+  // Degenerate case: petgraph's `dinics` spins forever when source and
+  // destination coincide, because the level graph always reports the
+  // destination at a positive level and every "augmenting path" is empty. A
+  // non-terminating call is worse than a divergence from upstream, so report
+  // zero flow instead — the maximum flow from a node to itself moves nothing.
+  if source == destination {
+    return (max_flow, flows)
+  }
   let visited = @visit.VisitMap::new(g.node_count())
   let level_edges : Array[Array[@graph.EdgeId]] = Array::makei(g.node_count(), _ => {
     []

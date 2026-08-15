@@ -73,10 +73,11 @@ pub fn[N, E, K : Measure] bellman_ford(
     match distances[i] {
       None => continue // unreachable: cannot relax further
       Some(du) =>
-        for edge in g.edges_directed(u, Outgoing) {
-          guard g.edge_endpoints(edge) is Some((_, v)) else { continue }
-          let candidate = du.add(edge_cost(edge))
-          let j = v.index()
+        // `edges` normalizes undirected endpoints so `target` points away from
+        // `u`; see the note in `dijkstra`.
+        for eref in g.edges(u) {
+          let candidate = du.add(edge_cost(eref.id))
+          let j = eref.target.index()
           let improves = match distances[j] {
             None => true
             Some(dv) => candidate.compare(dv) < 0
@@ -108,10 +109,11 @@ fn[N, E, K : Measure] bellman_ford_initialize_relax(
     for i in 0..<n {
       let u = @graph.NodeId::new(i)
       guard distances[i] is Some(du) else { continue }
-      for edge in g.edges_directed(u, Outgoing) {
-        guard g.edge_endpoints(edge) is Some((_, v)) else { continue }
-        let candidate = du.add(edge_cost(edge))
-        let j = v.index()
+      // `edges` normalizes undirected endpoints so `target` points away from
+      // `u`; see the note in `dijkstra`.
+      for eref in g.edges(u) {
+        let candidate = du.add(edge_cost(eref.id))
+        let j = eref.target.index()
         let improves = match distances[j] {
           None => true
           Some(dv) => candidate.compare(dv) < 0

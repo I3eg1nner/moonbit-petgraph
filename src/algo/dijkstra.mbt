@@ -34,12 +34,17 @@ pub fn[N, E, K : Measure] dijkstra(
     if goal is Some(target) && node == target {
       break
     }
-    for edge in g.edges_directed(node, Outgoing) {
-      guard g.edge_endpoints(edge) is Some((_, next)) else { continue }
+    // `edges` (not `edges_directed`) is what makes this correct on undirected
+    // graphs: it normalizes each incident edge so `target` is the endpoint away
+    // from `node`, exactly like petgraph's `Edges`/`EdgeRef::target`. Reading
+    // the stored `dst` instead would walk back into `node` for any undirected
+    // edge that happens to be stored as `(other, node)`.
+    for eref in g.edges(node) {
+      let next = eref.target
       if visited.is_visited(next) {
         continue
       }
-      let next_score = node_score.add(edge_cost(edge))
+      let next_score = node_score.add(edge_cost(eref.id))
       match scores.get(next) {
         Some(cur) =>
           if next_score.compare(cur) < 0 {

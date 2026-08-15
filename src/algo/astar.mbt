@@ -71,9 +71,11 @@ pub fn[N, E, K : Measure] astar(
     }
     // Skip if this node has already been expanded with a strictly better g.
     let (_, _, g_node) = scores.get(node).unwrap()
-    for edge in g.edges_directed(node, Outgoing) {
-      guard g.edge_endpoints(edge) is Some((_, neigh)) else { continue }
-      let neigh_g = g_node.add(edge_cost(edge))
+    // `edges` normalizes undirected endpoints so `target` always points away
+    // from `node`; see the note in `dijkstra`.
+    for eref in g.edges(node) {
+      let neigh = eref.target
+      let neigh_g = g_node.add(edge_cost(eref.id))
       let neigh_h = estimate_cost(neigh)
       let neigh_f = neigh_g.add(neigh_h)
       let better = match scores.get(neigh) {
