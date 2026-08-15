@@ -7,8 +7,13 @@ on:
     branches: [main, master]
   workflow_dispatch: {}
 
+# A newer push to the same branch supersedes an in-flight run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  # Acceptance gates: moon check, moon fmt, moon info, moon test.
+  # Acceptance gates: check, fmt, info, test — all with warnings as errors.
   verify:
     name: Verify (check / fmt / info / test)
     runs-on: ubuntu-latest
@@ -21,8 +26,11 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
 
+      - name: Report toolchain version
+        run: moon version --all
+
       # 1) Type check, all backends, warnings are errors.
-      - name: moon check
+      - name: moon check --deny-warn
         run: moon check --target all --deny-warn
 
       # 2) Formatting must be canonical (source + moon.mod / moon.pkg).
@@ -37,9 +45,10 @@ jobs:
           moon info
           git diff --exit-code
 
-      # 4) Full test suite (default backend; per-backend matrix below).
-      - name: moon test
-        run: moon test
+      # 4) Full test suite, warnings are errors. Covers the doc-tested
+      #    examples in src/README.mbt.md as well as the unit tests.
+      - name: moon test --deny-warn
+        run: moon test --deny-warn
 
   # Build + test on every backend.
   build-test:
@@ -63,6 +72,22 @@ jobs:
 
       - name: Test
         run: moon test --target ${{ matrix.backend }}
+
+  # The entry point the README tells users to run must actually run.
+  demo:
+    name: Run demo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install MoonBit toolchain
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: moon run src/cmd/main
+        run: moon run src/cmd/main
 
   coverage:
     name: Coverage

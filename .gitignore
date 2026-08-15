@@ -6,3 +6,6 @@ target/
 # Coverage data
 *.coverage
 moonbit_coverage_*.txt
+
+# Agent worktrees (transient, created by tooling)
+.claude/worktrees/
