@@ -15,8 +15,13 @@ moon test src/graph       # run only one package's tests
 moon test --enable-coverage && moon coverage report -f summary   # coverage
 ```
 
-CI (`.github/workflows/ci.yml`) runs format-check, multi-backend type-check, build & test on
-`wasm-gc`/`js`/`native`, and a coverage report on every push and pull request.
+CI (`.github/workflows/ci.yml`) runs, on every push and pull request:
+`moon check --target all --deny-warn`; `moon fmt` and `moon info` followed by
+`git diff --exit-code` (so formatting and the committed `.mbti` interfaces
+cannot drift); `moon test --deny-warn`; a build-and-test matrix over all four
+backends (`wasm`, `wasm-gc`, `js`, `native`); a `moon run src/cmd/main` smoke
+job so the entry point the README documents is verified to run; and a coverage
+report.
 
 ## Test layers
 
@@ -63,10 +68,27 @@ invariants that should hold for *any* input:
 - On an undirected graph, `connected_components` equals the number of SCCs of its symmetric
   directed closure.
 
-### 5. Documentation tests
+### 5. Regression tests for fixed defects
 
-`README.mbt.md` (symlinked to `README.md`) carries the canonical end-to-end example as a
-compiled, executed test, so the README cannot drift from the real API.
+Each defect found in the port gets a dedicated suite that fails on the old
+behaviour, so it cannot silently return:
+
+- `algo/undirected_regression_test.mbt` — every fixture stores its undirected
+  edges "backwards" (higher index as source), which is the exact shape that
+  broke `dijkstra` / `astar` / `bellman_ford`. Also covers undirected symmetry
+  and self-loops.
+- `algo/flow_degenerate_test.mbt` — `source == destination` (which used to hang
+  `dinics`) and unreachable sinks, asserted for both max-flow algorithms.
+
+### 6. Documentation tests
+
+`src/README.mbt.md` carries the README's examples as compiled, executed tests.
+It is **generated** from the root `README.md` (same file minus the CI badge and
+the language-switcher line), so the examples a reader sees and the examples the
+test runner executes are byte-identical and cannot drift. Public algorithm,
+traversal and unionfind entry points additionally carry runnable ```` ```mbt check ````
+doc-test examples in their doc comments; bare ```` ``` ```` fences are *not*
+compiled or run.
 
 ## Determinism notes
 
@@ -77,32 +99,43 @@ stable across runs and backends.
 
 ## Current status
 
-**145 tests pass** on all four backends (`wasm`, `wasm-gc`, `js`, `native`), and
-`moon check --deny-warn --target all` is clean. Of these, **58 are ported
-faithfully from petgraph's own test suite** (in `*_ported_test.mbt` files, keeping
-the original Rust test names — see the Chinese `测试文档.md` §9 for the full
-correspondence and the documented out-of-scope skip list). Per-package counts:
+**331 tests pass** on all four backends (`wasm`, `wasm-gc`, `js`, `native`), and
+`moon check --deny-warn --target all` is clean. Roughly 161 of them are ported
+from petgraph's own test suite, keeping the original Rust test names — see the
+Chinese `测试文档.md` §9 for the full correspondence and the documented
+out-of-scope skip list. Per-package counts:
 
-| Package | Tests | of which ported | Notes |
-|---------|------:|----:|-------|
-| `graph` | 33 | 13 | edge-list invariant white-box tests + ported core tests |
-| `unionfind` | 27 | 10 | full port of petgraph `tests/unionfind.rs` + doc-test examples |
-| `visit` | 21 | 6 | traversal orders, cycle skipping, DFS events + doc-test examples |
-| `dot` | 13 | 5 | snapshot tests vs. petgraph golden strings |
-| `algo` | 48 | 24 | shortest paths, SCC, MST, toposort + cross-checks + doc-test examples |
-| root (`README.mbt.md`) | 3 | 0 | doc-tested usage examples |
+| Package | Tests | Notes |
+|---------|------:|-------|
+| `graph` | 50 | edge-list invariant white-box tests, transform/retain invariants, ported core tests |
+| `unionfind` | 27 | full port of petgraph `tests/unionfind.rs` + doc-test examples |
+| `visit` | 43 | traversal orders, DFS events, view adapters, `Walker` iterators |
+| `dot` | 13 | snapshot tests vs. petgraph golden strings |
+| `algo` | 192 | shortest paths, connectivity, flow, matching, trees, cross-checks, regressions |
+| root | 6 | doc-tested README examples + `version()` |
 
-Every public algorithm, traversal, and unionfind entry point also carries a
-runnable `mbt check` doc-test example (counted above); bare ```` ``` ```` fences
-in doc comments are *not* compiled or run, so the examples use `mbt check`.
-
-The 58 ported tests passed with **no implementation changes**, validating
-behavioural fidelity to petgraph. Line coverage is ~90% (865/955); the untested
-remainder is mostly the `cmd/main` demo and a few defensive branches. Reproduce
-locally:
+Line coverage is **2311/2471 ≈ 93.5%**; the untested remainder is mostly the
+`cmd/main` demo and defensive branches. Reproduce locally:
 
 ```bash
 moon test --enable-coverage && moon coverage report -f summary
 ```
+
+### What the tests actually caught
+
+The first round of the port had all 58 then-ported tests pass with no
+implementation changes, which was read as evidence of fidelity. Widening the
+surface showed that reading was too optimistic — two real defects surfaced
+immediately:
+
+1. `dijkstra` / `astar` / `bellman_ford` traversed undirected graphs
+   incorrectly, silently reporting reachable nodes as unreachable. The original
+   tests missed it because their undirected fixtures happened to store every
+   edge in the direction the buggy code read.
+2. `dinics` did not terminate when `source == destination`.
+
+Both now have dedicated regression suites (layer 5 above). The lesson recorded
+here for future work: a fixture that only exercises the convenient orientation
+of an undirected edge proves very little.
 
 See `docs/TODO.md` for per-phase progress.
