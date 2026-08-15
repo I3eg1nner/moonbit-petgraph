@@ -1,7 +1,7 @@
 import {
-  "V1GreenSummer/petgraph/graph",
-  "V1GreenSummer/petgraph/visit",
-  "V1GreenSummer/petgraph/unionfind",
+  "I3eg1nner/petgraph/graph",
+  "I3eg1nner/petgraph/visit",
+  "I3eg1nner/petgraph/unionfind",
   "moonbitlang/core/priority_queue",
   "moonbitlang/core/double",
   "moonbitlang/core/deque",

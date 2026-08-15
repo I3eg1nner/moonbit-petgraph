@@ -38,17 +38,22 @@ Rust→MoonBit adaptation rationale.
 This is a standard MoonBit module. Add it as a dependency of your project:
 
 ```bash
-moon add V1GreenSummer/petgraph
+moon add I3eg1nner/petgraph
 ```
+
+> The mooncakes.io package namespace is `I3eg1nner/`, while this repository is
+> hosted at `github.com/V1GreenSummer/`. Both accounts belong to the same
+> author; the namespace tracks the publishing account, the repository URL tracks
+> where the source lives.
 
 Then import the sub-packages you need in your package's `moon.pkg`:
 
 ```json
 {
   "import": [
-    "V1GreenSummer/petgraph/graph",
-    "V1GreenSummer/petgraph/algo",
-    "V1GreenSummer/petgraph/dot"
+    "I3eg1nner/petgraph/graph",
+    "I3eg1nner/petgraph/algo",
+    "I3eg1nner/petgraph/dot"
   ]
 }
 ```

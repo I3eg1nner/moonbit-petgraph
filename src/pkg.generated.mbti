@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "V1GreenSummer/petgraph"
+package "I3eg1nner/petgraph"
 
 // Values
 pub fn version() -> String

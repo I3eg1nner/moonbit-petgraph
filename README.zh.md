@@ -36,17 +36,20 @@ Rust [petgraph](https://github.com/petgraph/petgraph) 库的 MoonBit 移植—�
 这是一个标准的 MoonBit 模块。把它作为依赖加入你的项目:
 
 ```bash
-moon add V1GreenSummer/petgraph
+moon add I3eg1nner/petgraph
 ```
+
+> mooncakes.io 上的包命名空间是 `I3eg1nner/`，而本仓库托管在 `github.com/V1GreenSummer/`。
+> 两个账号同属一位作者：命名空间跟随发布账号，仓库地址跟随源码所在位置。
 
 然后在你所在包的 `moon.pkg` 里按需导入子包:
 
 ```json
 {
   "import": [
-    "V1GreenSummer/petgraph/graph",
-    "V1GreenSummer/petgraph/algo",
-    "V1GreenSummer/petgraph/dot"
+    "I3eg1nner/petgraph/graph",
+    "I3eg1nner/petgraph/algo",
+    "I3eg1nner/petgraph/dot"
   ]
 }
 ```

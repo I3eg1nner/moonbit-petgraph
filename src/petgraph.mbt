@@ -1,5 +1,5 @@
 ///|
-/// `V1GreenSummer/petgraph` is a MoonBit port of the Rust
+/// `I3eg1nner/petgraph` is a MoonBit port of the Rust
 /// [petgraph](https://github.com/petgraph/petgraph) library: graph data
 /// structures and algorithms.
 ///

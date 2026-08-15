@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "V1GreenSummer/petgraph/graph"
+package "I3eg1nner/petgraph/graph"
 
 import {
   "moonbitlang/core/debug",

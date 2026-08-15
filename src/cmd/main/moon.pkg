@@ -1,7 +1,7 @@
 import {
-  "V1GreenSummer/petgraph/graph",
-  "V1GreenSummer/petgraph/algo",
-  "V1GreenSummer/petgraph/dot",
+  "I3eg1nner/petgraph/graph",
+  "I3eg1nner/petgraph/algo",
+  "I3eg1nner/petgraph/dot",
 }
 
 pkgtype(kind: "executable")

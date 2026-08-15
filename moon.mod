@@ -1,4 +1,4 @@
-name = "V1GreenSummer/petgraph"
+name = "I3eg1nner/petgraph"
 
 version = "0.2.0"
 

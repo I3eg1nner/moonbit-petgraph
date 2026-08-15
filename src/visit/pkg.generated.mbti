@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "V1GreenSummer/petgraph/visit"
+package "I3eg1nner/petgraph/visit"
 
 import {
-  "V1GreenSummer/petgraph/graph",
+  "I3eg1nner/petgraph/graph",
   "moonbitlang/core/debug",
   "moonbitlang/core/deque",
 }
