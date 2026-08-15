@@ -29,6 +29,13 @@ pub struct EdgeId(Int) derive(Compare, Eq, Hash, @debug.Debug)
 pub fn EdgeId::index(Self) -> Int
 pub fn EdgeId::new(Int) -> Self
 
+pub struct EdgeRef[E] {
+  id : EdgeId
+  source : NodeId
+  target : NodeId
+  weight : E
+} derive(@debug.Debug)
+
 type Graph[N, E]
 pub fn[N, E] Graph::add_edge(Self[N, E], NodeId, NodeId, E) -> EdgeId
 pub fn[N, E] Graph::add_node(Self[N, E], N) -> NodeId
@@ -38,22 +45,35 @@ pub fn[N, E] Graph::contains_edge(Self[N, E], NodeId, NodeId) -> Bool
 pub fn[N, E] Graph::edge_count(Self[N, E]) -> Int
 pub fn[N, E] Graph::edge_endpoints(Self[N, E], EdgeId) -> (NodeId, NodeId)?
 pub fn[N, E] Graph::edge_ids(Self[N, E]) -> Iter[EdgeId]
+pub fn[N, E] Graph::edge_references(Self[N, E]) -> Iter[EdgeRef[E]]
 pub fn[N, E] Graph::edge_weight(Self[N, E], EdgeId) -> E?
+pub fn[N, E] Graph::edge_weights(Self[N, E]) -> Iter[E]
+pub fn[N, E] Graph::edges(Self[N, E], NodeId) -> Iter[EdgeRef[E]]
+pub fn[N, E] Graph::edges_connecting(Self[N, E], NodeId, NodeId) -> Iter[EdgeId]
 pub fn[N, E] Graph::edges_directed(Self[N, E], NodeId, Direction) -> Iter[EdgeId]
+pub fn[N : Default, E] Graph::extend_with_edges(Self[N, E], Array[(NodeId, NodeId, E)]) -> Unit
 pub fn[N, E] Graph::externals(Self[N, E], Direction) -> Iter[NodeId]
+pub fn[N, E, N2, E2] Graph::filter_map(Self[N, E], (NodeId, N) -> N2?, (EdgeId, E) -> E2?) -> Self[N2, E2]
 pub fn[N, E] Graph::find_edge(Self[N, E], NodeId, NodeId) -> EdgeId?
 pub fn[N, E] Graph::find_edge_undirected(Self[N, E], NodeId, NodeId) -> (EdgeId, Direction)?
+pub fn[N, E] Graph::first_edge(Self[N, E], NodeId, Direction) -> EdgeId?
+pub fn[N, E] Graph::into_nodes_edges(Self[N, E]) -> (Array[N], Array[(NodeId, NodeId, E)])
 pub fn[N, E] Graph::is_directed(Self[N, E]) -> Bool
+pub fn[N, E, N2, E2] Graph::map(Self[N, E], (NodeId, N) -> N2, (EdgeId, E) -> E2) -> Self[N2, E2]
 pub fn[N, E] Graph::neighbors(Self[N, E], NodeId) -> Iter[NodeId]
 pub fn[N, E] Graph::neighbors_directed(Self[N, E], NodeId, Direction) -> Iter[NodeId]
 pub fn[N, E] Graph::neighbors_undirected(Self[N, E], NodeId) -> Iter[NodeId]
 pub fn[N, E] Graph::new() -> Self[N, E]
 pub fn[N, E] Graph::new_undirected() -> Self[N, E]
+pub fn[N, E] Graph::next_edge(Self[N, E], EdgeId, Direction) -> EdgeId?
 pub fn[N, E] Graph::node_count(Self[N, E]) -> Int
 pub fn[N, E] Graph::node_ids(Self[N, E]) -> Iter[NodeId]
 pub fn[N, E] Graph::node_weight(Self[N, E], NodeId) -> N?
+pub fn[N, E] Graph::node_weights(Self[N, E]) -> Iter[N]
 pub fn[N, E] Graph::remove_edge(Self[N, E], EdgeId) -> E?
 pub fn[N, E] Graph::remove_node(Self[N, E], NodeId) -> N?
+pub fn[N, E] Graph::retain_edges(Self[N, E], (Self[N, E], EdgeId) -> Bool) -> Unit
+pub fn[N, E] Graph::retain_nodes(Self[N, E], (Self[N, E], NodeId) -> Bool) -> Unit
 pub fn[N, E] Graph::reverse(Self[N, E]) -> Unit
 pub fn[N, E] Graph::set_edge_weight(Self[N, E], EdgeId, E) -> Unit
 pub fn[N, E] Graph::set_node_weight(Self[N, E], NodeId, N) -> Unit
@@ -68,7 +88,7 @@ pub fn NodeId::new(Int) -> Self
 // Type aliases
 
 // Traits
-pub trait NeighborSource {
+pub(open) trait NeighborSource {
   fn node_count(Self) -> Int
   fn node_ids(Self) -> Iter[NodeId]
   fn neighbors_directed(Self, NodeId, Direction) -> Iter[NodeId]

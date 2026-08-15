@@ -17,8 +17,10 @@ pub struct Bfs {
   queue : @deque.Deque[@graph.NodeId]
   discovered : VisitMap
 }
+pub fn[G : @graph.NeighborSource] Bfs::iter(Self, G) -> Iter[@graph.NodeId]
 pub fn[G : @graph.NeighborSource] Bfs::new(G, @graph.NodeId) -> Self
 pub fn[G : @graph.NeighborSource] Bfs::next(Self, G) -> @graph.NodeId?
+pub fn[G : @graph.NeighborSource] Bfs::walker(Self, G) -> Walker
 
 pub(all) enum Control {
   Continue
@@ -31,10 +33,12 @@ pub struct Dfs {
   discovered : VisitMap
 }
 pub fn[G : @graph.NeighborSource] Dfs::empty(G) -> Self
+pub fn[G : @graph.NeighborSource] Dfs::iter(Self, G) -> Iter[@graph.NodeId]
 pub fn Dfs::move_to(Self, @graph.NodeId) -> Unit
 pub fn[G : @graph.NeighborSource] Dfs::new(G, @graph.NodeId) -> Self
 pub fn[G : @graph.NeighborSource] Dfs::next(Self, G) -> @graph.NodeId?
 pub fn Dfs::reset(Self) -> Unit
+pub fn[G : @graph.NeighborSource] Dfs::walker(Self, G) -> Walker
 
 pub enum DfsEvent {
   Discover(@graph.NodeId, Int)
@@ -50,19 +54,43 @@ pub struct DfsPostOrder {
   finished : VisitMap
 }
 pub fn[G : @graph.NeighborSource] DfsPostOrder::empty(G) -> Self
+pub fn[G : @graph.NeighborSource] DfsPostOrder::iter(Self, G) -> Iter[@graph.NodeId]
 pub fn DfsPostOrder::move_to(Self, @graph.NodeId) -> Unit
 pub fn[G : @graph.NeighborSource] DfsPostOrder::new(G, @graph.NodeId) -> Self
 pub fn[G : @graph.NeighborSource] DfsPostOrder::next(Self, G) -> @graph.NodeId?
 pub fn DfsPostOrder::reset(Self) -> Unit
+pub fn[G : @graph.NeighborSource] DfsPostOrder::walker(Self, G) -> Walker
+
+pub struct EdgeFiltered[N, E] {
+  graph : @graph.Graph[N, E]
+  include_edge : (@graph.EdgeId, @graph.NodeId, @graph.NodeId) -> Bool
+}
+pub fn[N, E] EdgeFiltered::from_fn(@graph.Graph[N, E], (@graph.EdgeId, @graph.NodeId, @graph.NodeId) -> Bool) -> Self[N, E]
+pub impl[N, E] @graph.NeighborSource for EdgeFiltered[N, E]
+
+pub struct NodeFiltered[G] {
+  graph : G
+  include_node : (@graph.NodeId) -> Bool
+}
+pub fn[G] NodeFiltered::from_fn(G, (@graph.NodeId) -> Bool) -> Self[G]
+pub impl[G : @graph.NeighborSource] @graph.NeighborSource for NodeFiltered[G]
+
+pub(all) struct Reversed[G](G)
+pub impl[G : @graph.NeighborSource] @graph.NeighborSource for Reversed[G]
 
 pub struct Topo {
   tovisit : Array[@graph.NodeId]
   ordered : VisitMap
 }
 pub fn[G : @graph.NeighborSource] Topo::empty(G) -> Self
+pub fn[G : @graph.NeighborSource] Topo::iter(Self, G) -> Iter[@graph.NodeId]
 pub fn[G : @graph.NeighborSource] Topo::new(G) -> Self
 pub fn[G : @graph.NeighborSource] Topo::next(Self, G) -> @graph.NodeId?
 pub fn[G : @graph.NeighborSource] Topo::reset(Self, G) -> Unit
+pub fn[G : @graph.NeighborSource] Topo::walker(Self, G) -> Walker
+
+pub(all) struct UndirectedAdaptor[G](G)
+pub impl[G : @graph.NeighborSource] @graph.NeighborSource for UndirectedAdaptor[G]
 
 pub struct VisitMap {
   visited : Array[Bool]
@@ -71,6 +99,10 @@ pub fn VisitMap::is_visited(Self, @graph.NodeId) -> Bool
 pub fn VisitMap::new(Int) -> Self
 pub fn VisitMap::reset(Self) -> Unit
 pub fn VisitMap::visit(Self, @graph.NodeId) -> Bool
+
+pub(all) struct Walker(() -> @graph.NodeId?)
+pub fn Walker::iter(Self) -> Iter[@graph.NodeId]
+pub fn Walker::walk_next(Self) -> @graph.NodeId?
 
 // Type aliases
 

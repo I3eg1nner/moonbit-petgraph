@@ -3,25 +3,76 @@ package "V1GreenSummer/petgraph/algo"
 
 import {
   "V1GreenSummer/petgraph/graph",
+  "V1GreenSummer/petgraph/visit",
   "moonbitlang/core/debug",
 }
 
 // Values
+pub fn[N, E] all_simple_paths(@graph.Graph[N, E], @graph.NodeId, @graph.NodeId, Int, max_intermediate_nodes? : Int) -> Iter[Array[@graph.NodeId]]
+
+pub fn[N, E] all_simple_paths_multi(@graph.Graph[N, E], @graph.NodeId, Array[@graph.NodeId], Int, max_intermediate_nodes? : Int) -> Iter[Array[@graph.NodeId]]
+
+pub fn[G : @graph.NeighborSource] articulation_points(G) -> Array[@graph.NodeId]
+
 pub fn[N, E, K : Measure] astar(@graph.Graph[N, E], start~ : @graph.NodeId, is_goal~ : (@graph.NodeId) -> Bool, edge_cost~ : (@graph.EdgeId) -> K, estimate_cost~ : (@graph.NodeId) -> K) -> (K, Array[@graph.NodeId])?
 
 pub fn[N, E, K : Measure] bellman_ford(@graph.Graph[N, E], source~ : @graph.NodeId, edge_cost~ : (@graph.EdgeId) -> K) -> BellmanFordPaths[K] raise NegativeCycle
 
+pub fn[N, E, K : Measure] bidirectional_dijkstra(@graph.Graph[N, E], start~ : @graph.NodeId, goal~ : @graph.NodeId, edge_cost~ : (@graph.EdgeId) -> K) -> K?
+
+pub fn[N, E] bridges(@graph.Graph[N, E]) -> Array[@graph.EdgeId]
+
+pub fn[N, E] condensation(@graph.Graph[N, E], Bool) -> @graph.Graph[Array[N], E]
+
 pub fn[N, E] connected_components(@graph.Graph[N, E]) -> Int
 
+pub fn[N, E] dag_to_toposorted_adjacency_list(@graph.Graph[N, E], Array[@graph.NodeId]) -> (Array[Array[Int]], Array[Int])
+
+pub fn dag_transitive_reduction_closure(Array[Array[Int]]) -> (Array[Array[Int]], Array[Array[Int]])
+
 pub fn[N, E, K : Measure] dijkstra(@graph.Graph[N, E], start~ : @graph.NodeId, goal? : @graph.NodeId, edge_cost~ : (@graph.EdgeId) -> K) -> Map[@graph.NodeId, K]
+
+pub fn[N, E, K : BoundedMeasure] dinics(@graph.Graph[N, E], source~ : @graph.NodeId, destination~ : @graph.NodeId, edge_cost~ : (@graph.EdgeId) -> K) -> (K, Array[K])
+
+pub fn[N, E] dsatur_coloring(@graph.Graph[N, E]) -> (Map[@graph.NodeId, Int], Int)
+
+pub fn[N, E, K : Measure] find_negative_cycle(@graph.Graph[N, E], source~ : @graph.NodeId, edge_cost~ : (@graph.EdgeId) -> K) -> Array[@graph.NodeId]?
+
+pub fn[N, E, K : BoundedMeasure] floyd_warshall(@graph.Graph[N, E], edge_cost~ : (@graph.EdgeId) -> K) -> Map[(@graph.NodeId, @graph.NodeId), K] raise NegativeCycle
+
+pub fn[N, E, K : BoundedMeasure] ford_fulkerson(@graph.Graph[N, E], source~ : @graph.NodeId, destination~ : @graph.NodeId, edge_cost~ : (@graph.EdgeId) -> K) -> (K, Array[K])
+
+pub fn[N, E] greedy_feedback_arc_set(@graph.Graph[N, E]) -> Array[@graph.EdgeId]
+
+pub fn[N, E] greedy_matching(@graph.Graph[N, E]) -> Matching[N, E]
+
+pub fn[G : @graph.NeighborSource] has_path_connecting(G, @graph.NodeId, @graph.NodeId, space? : @visit.Dfs) -> Bool
+
+pub fn[G : @graph.NeighborSource] is_bipartite_undirected(G, @graph.NodeId) -> Bool
 
 pub fn[G : @graph.NeighborSource] is_cyclic_directed(G) -> Bool
 
 pub fn[N, E] is_cyclic_undirected(@graph.Graph[N, E]) -> Bool
 
+pub fn[N, E, K : BoundedMeasure] johnson(@graph.Graph[N, E], edge_cost~ : (@graph.EdgeId) -> K) -> Map[(@graph.NodeId, @graph.NodeId), K] raise NegativeCycle
+
+pub fn[N, E, K : Measure] k_shortest_path(@graph.Graph[N, E], start~ : @graph.NodeId, goal? : @graph.NodeId, k~ : Int, edge_cost~ : (@graph.EdgeId) -> K) -> Map[@graph.NodeId, K]
+
 pub fn[N, E] kosaraju_scc(@graph.Graph[N, E]) -> Array[Array[@graph.NodeId]]
 
+pub fn[N, E] maximal_cliques(@graph.Graph[N, E]) -> Array[Array[@graph.NodeId]]
+
+pub fn[N, E] maximum_matching(@graph.Graph[N, E]) -> Matching[N, E]
+
 pub fn[N, E, K : Measure] min_spanning_tree(@graph.Graph[N, E], edge_cost~ : (@graph.EdgeId) -> K) -> Array[@graph.EdgeId]
+
+pub fn[N, E, K : Measure] min_spanning_tree_prim(@graph.Graph[N, E], edge_cost~ : (@graph.EdgeId) -> K) -> Array[@graph.EdgeId]
+
+pub fn[G : @graph.NeighborSource] simple_fast(G, @graph.NodeId) -> Dominators
+
+pub fn[N, E, K : BoundedMeasure] spfa(@graph.Graph[N, E], source~ : @graph.NodeId, edge_cost~ : (@graph.EdgeId) -> K) -> BellmanFordPaths[K] raise NegativeCycle
+
+pub fn[N, E, K : BoundedMeasure] steiner_tree(@graph.Graph[N, E], Array[@graph.NodeId], edge_cost~ : (@graph.EdgeId) -> K) -> Array[@graph.EdgeId]
 
 pub fn[N, E] tarjan_scc(@graph.Graph[N, E]) -> Array[Array[@graph.NodeId]]
 
@@ -39,6 +90,30 @@ pub struct BellmanFordPaths[K] {
   distances : Array[K?]
   predecessors : Array[@graph.NodeId?]
 } derive(@debug.Debug)
+
+pub struct Dominators {
+  root_node : @graph.NodeId
+  idoms : Map[@graph.NodeId, @graph.NodeId]
+} derive(@debug.Debug)
+pub fn Dominators::dominators(Self, @graph.NodeId) -> Iter[@graph.NodeId]?
+pub fn Dominators::immediate_dominator(Self, @graph.NodeId) -> @graph.NodeId?
+pub fn Dominators::immediately_dominated_by(Self, @graph.NodeId) -> Iter[@graph.NodeId]
+pub fn Dominators::root(Self) -> @graph.NodeId
+pub fn Dominators::strict_dominators(Self, @graph.NodeId) -> Iter[@graph.NodeId]?
+
+pub struct Matching[N, E] {
+  graph : @graph.Graph[N, E]
+  mates : Array[@graph.NodeId?]
+  n_edges : Int
+}
+pub fn[N, E] Matching::contains_edge(Self[N, E], @graph.NodeId, @graph.NodeId) -> Bool
+pub fn[N, E] Matching::contains_node(Self[N, E], @graph.NodeId) -> Bool
+pub fn[N, E] Matching::edges(Self[N, E]) -> Iter[(@graph.NodeId, @graph.NodeId)]
+pub fn[N, E] Matching::is_empty(Self[N, E]) -> Bool
+pub fn[N, E] Matching::is_perfect(Self[N, E]) -> Bool
+pub fn[N, E] Matching::len(Self[N, E]) -> Int
+pub fn[N, E] Matching::mate(Self[N, E], @graph.NodeId) -> @graph.NodeId?
+pub fn[N, E] Matching::nodes(Self[N, E]) -> Iter[@graph.NodeId]
 
 type MinScored[K, T]
 pub impl[K : Measure, T] Compare for MinScored[K, T]
